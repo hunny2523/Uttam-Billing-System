@@ -30,7 +30,7 @@ export default function Billing() {
     });
     message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
 
-    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+    const whatsappURL = `https://wa.me/+91${phoneNumber}?text=${encodeURIComponent(
       message
     )}`;
     window.open(whatsappURL, "_blank");
@@ -56,7 +56,7 @@ export default function Billing() {
           <Button onClick={addItem}>Add</Button>
         </div>
         <Input
-          type="text"
+          type="number"
           placeholder="Customer Phone Number"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
