@@ -3,7 +3,7 @@ import Auth from "./pages/Auth";
 import Billing from "./components/Billing";
 import "./App.css";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebaseconfig.js";
+import { auth } from "./firebaseConfig.js";
 
 export default function App() {
   const [user, setUser] = useState(null);

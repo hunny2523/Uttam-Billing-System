@@ -3,7 +3,7 @@ import { Card, CardContent } from "./Card";
 import { Input } from "./Input";
 import { Button } from "./Button";
 import { useEffect } from "react";
-import { db } from "../../firebaseconfig";
+import { db } from "../firebaseConfig";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 
 export default function Billing() {
