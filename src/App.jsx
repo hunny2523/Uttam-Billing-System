@@ -1,11 +1,25 @@
-import "./App.css";
+import { useEffect, useState } from "react";
+import Auth from "./pages/Auth";
 import Billing from "./components/Billing";
-function App() {
-  return (
-    <>
-      <Billing />
-    </>
-  );
-}
+import "./App.css";
+import { auth } from "../firebaseconfig";
+import { onAuthStateChanged } from "firebase/auth";
 
-export default App;
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (authLoading) {
+    return <h1 className="text-center mt-10 text-lg">Loading...</h1>; // Show loading state
+  }
+
+  return <div>{!user ? <Auth onLogin={setUser} /> : <Billing />}</div>;
+}

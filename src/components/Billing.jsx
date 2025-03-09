@@ -2,6 +2,9 @@ import { useState, useRef } from "react";
 import { Card, CardContent } from "./Card";
 import { Input } from "./Input";
 import { Button } from "./Button";
+import { useEffect } from "react";
+import { db } from "../../firebaseconfig";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 
 export default function Billing() {
   const [items, setItems] = useState([]);
@@ -9,8 +12,24 @@ export default function Billing() {
   const [weight, setWeight] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [errors, setErrors] = useState({});
+  const [deviceName, setDeviceName] = useState("");
+
   const printRef = useRef(null);
   const priceRef = useRef(null);
+
+  useEffect(() => {
+    const getDeviceName = () => {
+      const ua = navigator.userAgent;
+      if (/android/i.test(ua)) return "Android Device";
+      if (/iPad|iPhone|iPod/.test(ua)) return "iOS Device";
+      if (/Macintosh|MacIntel|MacPPC|Mac68K/.test(ua)) return "Mac";
+      if (/Win/.test(ua)) return "Windows PC";
+      if (/Linux/.test(ua)) return "Linux Machine";
+      return "Unknown Device";
+    };
+
+    setDeviceName(getDeviceName());
+  }, []);
 
   const validateItemInputs = () => {
     const newErrors = {};
@@ -47,7 +66,7 @@ export default function Billing() {
 
   const finalTotal = items.reduce((sum, item) => sum + item.total, 0);
 
-  const sendWhatsApp = () => {
+  const sendWhatsApp = async () => {
     if (!validatePhoneNumber() || items.length === 0) return;
 
     let message = "🧾 *Your Bill* \n";
@@ -62,6 +81,7 @@ export default function Billing() {
       message
     )}`;
     window.open(whatsappURL, "_blank");
+    await saveBillToDB();
   };
 
   const clearBill = () => {
@@ -72,9 +92,39 @@ export default function Billing() {
     setErrors({});
   };
 
-  const printReceipt = () => {
+  const colRef = collection(db, "bills");
+
+  useEffect(() => {
+    const getBills = async () => {
+      const data = await getDocs(colRef);
+      console.log(data);
+    };
+    getBills();
+  }, []);
+
+  const saveBillToDB = async () => {
+    if (items.length === 0) return;
+
+    try {
+      const billData = {
+        items,
+        total: finalTotal,
+        phoneNumber,
+        deviceName,
+        timestamp: new Date(),
+      };
+      const colRef = collection(db, "bills");
+      const docRef = await addDoc(colRef, billData);
+      alert("Bill saved successfully!");
+    } catch (error) {
+      console.error("Error saving bill:", error);
+    }
+  };
+
+  const printReceipt = async () => {
     if (items.length === 0) return;
     window.print();
+    await saveBillToDB();
   };
 
   return (
