@@ -158,7 +158,7 @@ export default function Billing() {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
-      <Card className="w-full max-w-md p-6 bg-white shadow-lg rounded-2xl">
+      <Card className="w-full p-3 max-w-md  bg-white shadow-lg rounded-2xl">
         <h2 className="text-xl font-bold text-center mb-4">Uttam Masala</h2>
         <p className="text-center font-semibold">Bill No: {billNumber}</p>
         <div className="flex gap-2 mb-4">
