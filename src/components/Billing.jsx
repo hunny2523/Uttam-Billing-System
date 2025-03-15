@@ -12,6 +12,7 @@ import {
   orderBy,
   limit,
 } from "firebase/firestore";
+import CloseIcon from "../icons/CloseIcon";
 
 export default function Billing() {
   const [items, setItems] = useState([]);
@@ -148,6 +149,10 @@ export default function Billing() {
     await saveBillToDB();
   };
 
+  const removeItem = (indexToRemove) => {
+    setItems(items.filter((_, index) => index !== indexToRemove));
+  };
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
       <Card className="w-full max-w-md p-6 bg-white shadow-lg rounded-2xl">
@@ -194,6 +199,9 @@ export default function Billing() {
                 {item.price} x {item.weight} Kg
               </span>
               <span className="font-bold">₹{item.total.toFixed(2)}</span>
+              <div onClick={() => removeItem(index)}>
+                <CloseIcon />
+              </div>
             </CardContent>
           ))}
         </div>
