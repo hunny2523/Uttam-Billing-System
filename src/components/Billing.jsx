@@ -4,7 +4,14 @@ import { Input } from "./Input";
 import { Button } from "./Button";
 import { useEffect } from "react";
 import { db } from "../firebaseConfig";
-import { collection, addDoc, getDocs } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  limit,
+} from "firebase/firestore";
 
 export default function Billing() {
   const [items, setItems] = useState([]);
@@ -13,6 +20,7 @@ export default function Billing() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [errors, setErrors] = useState({});
   const [deviceName, setDeviceName] = useState("");
+  const [billNumber, setBillNumber] = useState(1);
 
   const printRef = useRef(null);
   const priceRef = useRef(null);
@@ -29,6 +37,17 @@ export default function Billing() {
     };
 
     setDeviceName(getDeviceName());
+
+    // Fetch last bill number
+    const getLastBillNumber = async () => {
+      const q = query(colRef, orderBy("billNumber", "desc"), limit(1));
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const lastBill = snapshot.docs[0].data();
+        setBillNumber(lastBill.billNumber + 1);
+      }
+    };
+    getLastBillNumber();
   }, []);
 
   const validateItemInputs = () => {
@@ -69,7 +88,7 @@ export default function Billing() {
   const sendWhatsApp = async () => {
     if (!validatePhoneNumber() || items.length === 0) return;
 
-    let message = "🧾 *Your Bill* \n";
+    let message = `🧾 *Bill No: ${billNumber}* \n`;
     items.forEach((item, index) => {
       message += `${index + 1}. ₹${item.price} x ${
         item.weight
@@ -107,6 +126,7 @@ export default function Billing() {
 
     try {
       const billData = {
+        billNumber,
         items,
         total: finalTotal,
         phoneNumber,
@@ -116,6 +136,7 @@ export default function Billing() {
       const colRef = collection(db, "bills");
       const docRef = await addDoc(colRef, billData);
       alert("Bill saved successfully!");
+      setBillNumber(billNumber + 1);
     } catch (error) {
       console.error("Error saving bill:", error);
     }
@@ -131,7 +152,20 @@ export default function Billing() {
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
       <Card className="w-full max-w-md p-6 bg-white shadow-lg rounded-2xl">
         <h2 className="text-xl font-bold text-center mb-4">Uttam Masala</h2>
+        <p className="text-center font-semibold">Bill No: {billNumber}</p>
         <div className="flex gap-2 mb-4">
+          <div className="flex flex-col">
+            <Input
+              type="number"
+              placeholder="Weight (Kg)"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+            />
+            {errors.weight && (
+              <p className="text-red-500 text-sm">{errors.weight}</p>
+            )}
+          </div>
+
           <div className="flex flex-col">
             <Input
               ref={priceRef}
@@ -142,18 +176,6 @@ export default function Billing() {
             />
             {errors.price && (
               <p className="text-red-500 text-sm">{errors.price}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col">
-            <Input
-              type="number"
-              placeholder="Weight (Kg)"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-            />
-            {errors.weight && (
-              <p className="text-red-500 text-sm">{errors.weight}</p>
             )}
           </div>
 
