@@ -141,6 +141,7 @@ export default function Billing() {
       const docRef = await addDoc(colRef, billData);
       alert("Bill saved successfully!");
       setBillNumber(billNumber + 1);
+      clearBill();
     } catch (error) {
       console.error("Error saving bill:", error);
     }
