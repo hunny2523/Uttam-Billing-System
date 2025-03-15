@@ -19,6 +19,7 @@ export default function Billing() {
   const [price, setPrice] = useState("");
   const [weight, setWeight] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [customerName, setCustomerName] = useState("");
   const [errors, setErrors] = useState({});
   const [deviceName, setDeviceName] = useState("");
   const [billNumber, setBillNumber] = useState(1);
@@ -109,6 +110,7 @@ export default function Billing() {
     setPrice("");
     setWeight("");
     setPhoneNumber("");
+    setCustomerName("");
     setErrors({});
   };
 
@@ -131,6 +133,7 @@ export default function Billing() {
         items,
         total: finalTotal,
         phoneNumber,
+        customerName,
         deviceName,
         timestamp: new Date(),
       };
@@ -209,6 +212,16 @@ export default function Billing() {
           Final Total: ₹{finalTotal.toFixed(2)}
         </div>
 
+        <div className="flex flex-col my-4">
+          <Input
+            placeholder="Customer Name"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+          />
+          {errors.customerName && (
+            <p className="text-red-500 text-sm">{errors.customerName}</p>
+          )}
+        </div>
         <div className="flex flex-col my-4">
           <Input
             type="number"
