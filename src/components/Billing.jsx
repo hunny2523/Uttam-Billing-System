@@ -157,6 +157,24 @@ export default function Billing() {
     setItems(items.filter((_, index) => index !== indexToRemove));
   };
 
+  async function printReceipt2() {
+    try {
+      const port = await navigator.serial.requestPort();
+      await port.open({ baudRate: 9600 });
+
+      const writer = port.writable.getWriter();
+      const encoder = new TextEncoder();
+
+      await writer.write(encoder.encode("Hello, World!\n\n"));
+      await writer.write(encoder.encode("\x1B\x69")); // ESC/POS cut paper command
+
+      writer.releaseLock();
+      await port.close();
+    } catch (error) {
+      console.error("Printing failed:", error);
+    }
+  }
+
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
       <Card className="w-full p-3 max-w-md  bg-white shadow-lg rounded-2xl">
@@ -234,6 +252,12 @@ export default function Billing() {
             <p className="text-red-500 text-sm">{errors.phoneNumber}</p>
           )}
         </div>
+        <Button
+          className="mt-2 w-full bg-purple-600 hover:bg-green-700"
+          onClick={printReceipt2}
+        >
+          print with code
+        </Button>
         <Button
           className="mt-2 w-full bg-green-600 hover:bg-green-700"
           onClick={sendWhatsApp}
