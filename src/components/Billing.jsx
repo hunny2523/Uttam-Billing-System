@@ -165,7 +165,15 @@ export default function Billing() {
       const writer = port.writable.getWriter();
       const encoder = new TextEncoder();
 
-      await writer.write(encoder.encode("Hello, World!\n\n"));
+      let message = `🧾 *Bill No: ${billNumber}* \n`;
+      items.forEach((item, index) => {
+        message += `${index + 1}. ₹${item.price} x ${
+          item.weight
+        } Kg = ₹${item.total.toFixed(2)}\n`;
+      });
+      message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
+
+      await writer.write(encoder.encode(`${message}\n\n`));
       await writer.write(encoder.encode("\x1B\x69")); // ESC/POS cut paper command
 
       writer.releaseLock();
