@@ -248,6 +248,10 @@ export default function Billing() {
         >
           Print Bill
         </Button>
+        <a href="intent://print?data=Hello, World!#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;">
+          Print
+        </a>
+
         <Button
           className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white"
           onClick={clearBill}
