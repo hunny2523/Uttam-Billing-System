@@ -317,12 +317,12 @@ export default function Billing() {
             <p className="text-red-500 text-sm">{errors.phoneNumber}</p>
           )}
         </div>
-        <Button
+        {/* <Button
           className="mt-2 w-full bg-purple-600 hover:bg-green-700"
           onClick={printReceipt2}
         >
           print with code
-        </Button>
+        </Button> */}
         <Button
           className="mt-2 w-full bg-green-600 hover:bg-green-700"
           onClick={sendWhatsApp}
@@ -330,7 +330,7 @@ export default function Billing() {
         >
           Send via WhatsApp
         </Button>
-        <Button
+        {/* <Button
           className="mt-4 w-full"
           onClick={printReceipt}
           disabled={items.length === 0}
@@ -341,8 +341,14 @@ export default function Billing() {
           href={`intent://print?data=${getTexts()}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`}
         >
           Print
-        </a>
-        <Button onClick={printReceipt3}>Click me</Button>
+        </a> */}
+        <Button
+          className="mt-4 w-full"
+          onClick={printReceipt3}
+          disabled={items.length === 0}
+        >
+          Print Bill
+        </Button>
         <Button
           className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white"
           onClick={clearBill}
