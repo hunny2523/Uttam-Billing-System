@@ -178,7 +178,7 @@ export default function Billing() {
     data += "\n\x1B\x21\x01"; // Small bold text
     data += "Ahmedabad-Kalol Highway\n";
     data += "Shertha, Gandhinagar-382423\n";
-    data += "M-9898070258\n";
+    data += "M-98980 70258\n";
 
     data += "------------------------------\n";
     data += "\x1B\x21\x08"; // Slightly larger bold text for "Items"
@@ -193,9 +193,9 @@ export default function Billing() {
     data += "\x1B\x21\x00"; // Reset text
 
     items.forEach((item, index) => {
-      data += `${index + 1}. ₹${item.price} x ${
-        item.weight
-      } Kg = ₹${item.total.toFixed(2)}\n`;
+      data += `${index + 1}. ${item.weight} Kg x ₹${item.price}  = ₹${
+        item.total
+      }\n`;
     });
 
     data += "------------------------------\n";
@@ -211,6 +211,7 @@ export default function Billing() {
     // Encode for RawBT
     let encodedData = encodeURIComponent(data);
     window.location.href = `intent:${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+    saveBillToDB();
   }
 
   async function printReceipt2() {
