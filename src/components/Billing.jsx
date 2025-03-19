@@ -190,7 +190,7 @@ export default function Billing() {
     let encodedData = encodeURIComponent(data);
 
     // Open RawBT intent with formatted text
-    window.location.href = `intent://print?data=${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+    window.location.href = `intent:${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
   }
 
   async function printReceipt2() {
