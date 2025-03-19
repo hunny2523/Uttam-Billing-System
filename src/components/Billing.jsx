@@ -157,6 +157,17 @@ export default function Billing() {
     setItems(items.filter((_, index) => index !== indexToRemove));
   };
 
+  const getTexts = () => {
+    let message = `🧾 *Bill No: ${billNumber}* \n`;
+    items.forEach((item, index) => {
+      message += `${index + 1}. ₹${item.price} x ${
+        item.weight
+      } Kg = ₹${item.total.toFixed(2)}\n`;
+    });
+    message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
+    return message;
+  };
+
   async function printReceipt2() {
     try {
       const port = await navigator.serial.requestPort();
@@ -280,7 +291,9 @@ export default function Billing() {
         >
           Print Bill
         </Button>
-        <a href="intent://print?data=Hello, World!#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;">
+        <a
+          href={`intent://print?data=${getTexts()}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`}
+        >
           Print
         </a>
 
