@@ -171,45 +171,40 @@ export default function Billing() {
   function printReceipt3() {
     let data = "\x1B\x40"; // Initialize printer
     data += "\x1B\x61\x01"; // Center align
-    data += "\x1B\x21\x10"; // Medium-size bold text
-    data += "🛒 Uttam Masala\n";
-
-    data += "\x1B\x21\x08"; // Slightly larger bold text for "Items"
-    data += `Bill No. ${billNumber} \n`;
-    data += "\x1B\x21\x00";
+    data += "\x1B\x21\x10"; // Bold, double-size
+    data += "Uttam Masala\n\n";
 
     // Address and phone number
     data += "\n\x1B\x21\x01"; // Small bold text
     data += "Ahmedabad-Kalol Highway\n";
     data += "Shertha, Gandhinagar-382423\n";
     data += "M-9898070258\n";
-    data += "================================\n";
 
-    data += `Date: ${new Date().toLocaleString()}\n`;
-    data += "================================\n\n";
-
+    data += "------------------------------\n";
     data += "\x1B\x21\x08"; // Slightly larger bold text for "Items"
+    data += `Bill No. ${billNumber} \n`;
+    data += "\x1B\x21\x00";
+    data += "------------------------------\n";
+    data += `Date: ${new Date().toLocaleString()}\n`;
+    data += "------------------------------\n\n";
+
+    data += "\x1B\x21\x08"; // Bold text for items
     data += "Items:\n";
     data += "\x1B\x21\x00"; // Reset text
 
-    // Print each item in a clean format
     items.forEach((item, index) => {
-      let itemLine = `${index + 1}. ₹${item.price} x ${item.weight}Kg`;
-      let totalLine = `= ₹${item.total.toFixed(2)}`;
-
-      // Adjust spacing dynamically
-      let spaces = " ".repeat(20 - itemLine.length);
-      data += itemLine + spaces + totalLine + "\n";
+      data += `${index + 1}. ₹${item.price} x ${
+        item.weight
+      } Kg = ₹${item.total.toFixed(2)}\n`;
     });
 
-    data += "================================\n";
-    data += "\x1B\x21\x10"; // Medium-bold for Total
+    data += "------------------------------\n";
+    data += "\x1B\x21\x10"; // Bold & double-size
     data += `Total: ₹${finalTotal.toFixed(2)}\n`;
     data += "\x1B\x21\x00"; // Reset font
-    data += "================================\n";
-    data += "\x1B\x21\x08"; // Medium-bold "Thank You!"
+    data += "------------------------------\n";
     data += "Thank You! 😊\n";
-    data += "================================\n\n";
+    data += "------------------------------\n\n";
 
     data += "\x1D\x56\x41"; // Cut paper (if supported)
 
