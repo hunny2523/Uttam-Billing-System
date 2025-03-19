@@ -224,9 +224,9 @@ export default function Billing() {
 
       let message = `🧾 *Bill No: ${billNumber}* \n`;
       items.forEach((item, index) => {
-        message += `${index + 1}. ₹${item.price} x ${
-          item.weight
-        } Kg = ₹${item.total.toFixed(2)}\n`;
+        message += `${index + 1}.  ${item.weight} Kg x ₹${
+          item.price
+        }  = ₹${item.total.toFixed(2)}\n`;
       });
       message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
 
