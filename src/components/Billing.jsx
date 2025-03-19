@@ -168,7 +168,7 @@ export default function Billing() {
     return message;
   };
 
-  function printReceipt3(items, finalTotal) {
+  function printReceipt3() {
     let data = "\x1B\x40"; // Initialize printer
     data += "\x1B\x61\x01"; // Center align
     data += "\x1B\x21\x10"; // Bold, double-size
