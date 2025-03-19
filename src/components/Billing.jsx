@@ -168,6 +168,31 @@ export default function Billing() {
     return message;
   };
 
+  function printReceipt3() {
+    let data = "\x1B\x40"; // Initialize printer
+    data += "\x1B\x21\x08"; // Bold text
+    data += "🧾 Bill No: " + billNumber + "\n\n"; // Bill Header
+    data += "\x1B\x21\x00"; // Reset font style
+
+    items.forEach((item, index) => {
+      data += `${index + 1}. ₹${item.price} x ${
+        item.weight
+      } Kg = ₹${item.total.toFixed(2)}\n`;
+    });
+
+    data += "\n-------------------------\n"; // Separator Line
+    data += "\x1B\x21\x10"; // Bold & double size
+    data += `💰 Total: ₹${finalTotal.toFixed(2)}\n`; // Total Amount
+    data += "\x1B\x21\x00"; // Reset font style
+    data += "\n\n\x1D\x56\x41"; // Cut paper (if supported)
+
+    // Encode for RawBT link
+    let encodedData = encodeURIComponent(data);
+
+    // Open RawBT intent with formatted text
+    window.location.href = `intent://print?data=${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+  }
+
   async function printReceipt2() {
     try {
       const port = await navigator.serial.requestPort();
@@ -296,7 +321,7 @@ export default function Billing() {
         >
           Print
         </a>
-
+        <Button onClick={printReceipt3}>Click me</Button>
         <Button
           className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white"
           onClick={clearBill}
