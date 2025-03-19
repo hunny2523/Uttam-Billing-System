@@ -171,36 +171,42 @@ export default function Billing() {
   function printReceipt3() {
     let data = "\x1B\x40"; // Initialize printer
     data += "\x1B\x61\x01"; // Center align
-    data += "\x1B\x21\x10"; // Bold, double-size
-    data += "🛒 Uttam Masala Billing Receipt\n";
+    data += "\x1B\x21\x30"; // Double height & width
+    data += "🛒 Uttam Masala Billing\n";
+    data += "      Receipt      \n";
     data += "\x1B\x21\x00"; // Reset font style
-    data += "------------------------------\n";
+    data += "================================\n";
     data += `Date: ${new Date().toLocaleString()}\n`;
-    data += "------------------------------\n\n";
+    data += "================================\n\n";
 
-    data += "\x1B\x21\x08"; // Bold text for items
+    data += "\x1B\x21\x10"; // Bold & larger text for "Items"
     data += "Items:\n";
-    data += "\x1B\x21\x00"; // Reset text
+    data += "\x1B\x21\x30"; // Double width & height for items
 
     items.forEach((item, index) => {
-      data += `${index + 1}. ₹${item.price} x ${
-        item.weight
-      } Kg = ₹${item.total.toFixed(2)}\n`;
+      let itemLine = `${index + 1}. ₹${item.price} x ${item.weight}Kg`;
+      let totalLine = `= ₹${item.total.toFixed(2)}`;
+
+      // Adjust spacing for full-width printing
+      let spaces = " ".repeat(18 - itemLine.length);
+      data += itemLine + spaces + totalLine + "\n";
     });
 
-    data += "------------------------------\n";
-    data += "\x1B\x21\x10"; // Bold & double-size
+    data += "\x1B\x21\x00"; // Reset font style
+    data += "================================\n";
+    data += "\x1B\x21\x30"; // Double width & height for total
     data += `Total: ₹${finalTotal.toFixed(2)}\n`;
     data += "\x1B\x21\x00"; // Reset font
-    data += "------------------------------\n";
+    data += "================================\n";
+    data += "\x1B\x21\x10"; // Bold "Thank You!"
     data += "Thank You! 😊\n";
-    data += "------------------------------\n\n";
+    data += "================================\n\n";
 
     data += "\x1D\x56\x41"; // Cut paper (if supported)
 
     // Encode for RawBT
     let encodedData = encodeURIComponent(data);
-    window.location.href = `intent://print?data=${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+    window.location.href = `intent:${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
   }
 
   async function printReceipt2() {
