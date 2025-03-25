@@ -187,15 +187,25 @@ export default function Billing() {
     data += "------------------------------\n";
     data += `Date: ${new Date().toLocaleString()}\n`;
     data += "------------------------------\n\n";
+    data += `Name: ${customerName}\n`;
+    data += "------------------------------\n\n";
 
     data += "\x1B\x21\x08"; // Bold text for items
     data += "Items:\n";
     data += "\x1B\x21\x00"; // Reset text
 
     items.forEach((item, index) => {
-      data += `${index + 1}. ${item.weight} Kg x ₹${item.price}  = ₹${
-        item.total
-      }\n`;
+      data += `${index + 1}. ${" "} ${" "} ${item.weight} Kg x ₹${
+        item.price
+      }  = ₹${item.total}\n`;
+    });
+
+    // Items: Center-aligned with proper spacing
+    items.forEach((item, index) => {
+      let line = `${index + 1}. ₹${item.price} x ${
+        item.weight
+      }Kg = ₹${item.total.toFixed(2)}`;
+      data += line.padStart((32 + line.length) / 2) + "\n"; // Center align
     });
 
     data += "------------------------------\n";
