@@ -193,13 +193,25 @@ export default function Billing() {
     data += "\x1B\x21\x08"; // Bold text for items
     data += "Items:\n";
     data += "\x1B\x21\x00"; // Reset text
-
+    // right aligned
+    data += "\x1B\x61\x02";
+    data += "\x1B\x21\x08"; // Slightly larger font for items
+    // items.forEach((item, index) => {
+    //   data += `${index + 1}. ${" "} ${item.weight} Kg x ₹${item.price}  = ₹${
+    //     item.total
+    //   }\n`;
+    // });
+    // Print each item in right-aligned table format
     items.forEach((item, index) => {
-      data += `${index + 1}. ${" "} ${item.weight} Kg x ₹${item.price}  = ₹${
-        item.total
-      }\n`;
+      let name = `${index + 1}. `.padEnd(6); // Index
+      let price = `₹${item.price}`.padStart(7);
+      let qty = `${item.weight}Kg`.padStart(6);
+      let total = `₹${item.total.toFixed(2)}`.padStart(8);
+
+      data += `${name}${price}${qty}${total}\n`;
     });
 
+    data += "\x1B\x21\x00";
     data += "------------------------------\n";
     data += "\x1B\x21\x10"; // Bold & double-size
     data += `Total: ₹${finalTotal.toFixed(2)}\n`;
