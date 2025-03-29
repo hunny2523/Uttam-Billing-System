@@ -205,6 +205,7 @@ export default function Billing() {
 
       data += `${name}${price} x ${qty} = ${total}\n`;
       data += "\x1B\x21\x01\n";
+      data += "\x1B\x21\x00";
     });
 
     data += "\x1B\x61\x01"; // center aligned
