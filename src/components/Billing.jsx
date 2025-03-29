@@ -203,13 +203,31 @@ export default function Billing() {
     // });
     // Print each item in right-aligned table format
     // Print each item in right-aligned table format with 3 spaces at end
+    // items.forEach((item, index) => {
+    //   let name = `${index + 1}. `.padEnd(3); // Index
+    //   let price = `₹${item.price}`.padStart(7);
+    //   let qty = `${item.weight}Kg`.padStart(6);
+    //   let total = `₹${item.total.toFixed(2)}`.padStart(8) + "   "; // 3 spaces
+
+    //   data += `${name}${price}${qty}${total}\n`;
+    // });
+
+    // Column Headers (Right-Aligned)
+    data += "\x1B\x61\x02"; // Right align
+    data += "Item    Price   Qty   Total   \n"; // 3 spaces at end
+    data += "================================\n";
+
+    data += "\x1B\x21\x10"; // Double-sized font (without bold)
+
+    // Print each item with **small spacing**
     items.forEach((item, index) => {
-      let name = `${index + 1}. `.padEnd(3); // Index
+      let name = `${index + 1}. `.padEnd(2); // Index
       let price = `₹${item.price}`.padStart(7);
-      let qty = `${item.weight}Kg`.padStart(6);
-      let total = `₹${item.total.toFixed(2)}`.padStart(8) + "   "; // 3 spaces
+      let qty = `${item.weight} Kg = `.padStart(6);
+      let total = `₹${item.total}`.padStart(8) + "   "; // 3 spaces
 
       data += `${name}${price}${qty}${total}\n`;
+      data += "\x1B\x20\x05"; // Add small space (5 units)
     });
 
     data += "\x1B\x61\x01"; // center aligned
