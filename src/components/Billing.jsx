@@ -198,10 +198,10 @@ export default function Billing() {
 
     // Print each item with **small spacing**
     items.forEach((item, index) => {
-      let name = `${index + 1}. `.padEnd(3); // Index with consistent spacing
+      let name = `${index + 1}.`.padEnd(3); // Index with consistent spacing
       let price = `₹${item.price}`.padStart(6);
       let qty = `${item.weight} Kg`.padStart(7);
-      let total = `₹${item.total.toFixed(2)}`.padStart(10) + "   "; // 3 spaces for better alignment
+      let total = `₹${item.total}`.padStart(10) + "    "; // 3 spaces for better alignment
 
       data += `${name}${price} x ${qty} = ${total}\n`;
       data += "\x1B\x21\x01\n";
