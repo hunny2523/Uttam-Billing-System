@@ -169,88 +169,57 @@ export default function Billing() {
   };
 
   function printReceipt3() {
-    // let data = "\x1B\x40"; // Initialize printer
-    // data += "\x1B\x61\x01"; // Center align
-    // data += "\x1B\x21\x10"; // Bold, double-size
-    // data += "Uttam Masala\n\n";
-
-    // // Address and phone number
-    // data += "\x1B\x21\x01"; // Small bold text
-    // data += "Ahmedabad-Kalol Highway\n";
-    // data += "Shertha, Gandhinagar-382423\n";
-    // data += "M-98980 70258\n";
-
-    // data += "------------------------------\n";
-    // data += "\x1B\x21\x08"; // Slightly larger bold text for "Items"
-    // data += `Bill No. ${billNumber} \n`;
-    // data += "\x1B\x21\x00";
-    // data += "------------------------------\n";
-    // data += `Date: ${new Date().toLocaleString()}\n`;
-    // data += "------------------------------\n";
-    // data += `Name: ${customerName}\n`;
-    // data += "------------------------------\n";
-
-    // data += "\x1B\x21\x08"; // Bold text for items
-    // data += "Items:\n\n";
-    // data += "\x1B\x21\x00"; // Reset text
-    // // right aligned
-    // data += "\x1B\x61\x02";
-
-    // // Print each item with **small spacing**
-    // items.forEach((item, index) => {
-    //   let name = `${index + 1}. `.padEnd(2); // Index
-    //   let price = `₹${item.price}`.padStart(7);
-    //   let qty = `${item.weight} Kg `.padStart(6);
-    //   let total = `₹${item.total}`.padStart(8) + "   "; // 3 spaces
-
-    //   data += `${name}${price} x ${qty} = ${total}\n`;
-    //   data += "\x1B\x21\x01\n";
-    //   data += "\x1B\x21\x00";
-    // });
-
-    // data += "\x1B\x61\x01"; // center aligned
-    // data += "\x1B\x21\x00";
-    // data += "------------------------------\n";
-    // data += "\x1B\x21\x10"; // Bold & double-size
-    // data += `Total: ₹${finalTotal.toFixed(2)}\n`;
-    // data += "\x1B\x21\x00"; // Reset font
-    // data += "------------------------------\n";
-    // data += "Thank You! 😊\n";
-    // data += "------------------------------\n\n";
-
-    // data += "\x1D\x56\x41"; // Cut paper (if supported)
-
     let data = "\x1B\x40"; // Initialize printer
-
-    data += "\x1B\x21\x10"; // Double-size text
+    data += "\x1B\x61\x01"; // Center align
+    data += "\x1B\x21\x10"; // Bold, double-size
     data += "Uttam Masala\n\n";
 
-    data += "\x1B\x21\x00"; // Normal text
+    // Address and phone number
+    data += "\x1B\x21\x01"; // Small bold text
     data += "Ahmedabad-Kalol Highway\n";
     data += "Shertha, Gandhinagar-382423\n";
-    data += "M-98980 70258\n\n";
+    data += "M-98980 70258\n";
 
-    // 🔹 Default line spacing
-    data += "\x1B\x32";
-    data += "Default Line Spacing\n";
-    data += "This is normal space.\n\n";
+    data += "------------------------------\n";
+    data += "\x1B\x21\x08"; // Slightly larger bold text for "Items"
+    data += `Bill No. ${billNumber} \n`;
+    data += "\x1B\x21\x00";
+    data += "------------------------------\n";
+    data += `Date: ${new Date().toLocaleString()}\n`;
+    data += "------------------------------\n";
+    data += `Name: ${customerName}\n`;
+    data += "------------------------------\n";
 
-    // 🔹 Increase spacing
-    data += "\x1B\x33\x40"; // Set spacing to 64 dots
-    data += "Increased Line Spacing\n";
-    data += "This text has bigger gaps.\n\n";
+    data += "\x1B\x21\x08"; // Bold text for items
+    data += "Items:\n\n";
+    data += "\x1B\x21\x00"; // Reset text
+    // right aligned
+    data += "\x1B\x61\x02";
 
-    // 🔹 Reduce spacing
-    data += "\x1B\x33\x10"; // Set spacing to 16 dots
-    data += "Reduced Line Spacing\n";
-    data += "Lines are closer now.\n\n";
+    // Print each item with **small spacing**
+    items.forEach((item, index) => {
+      let name = `${index + 1}. `.padEnd(3); // Index with consistent spacing
+      let price = `₹${item.price}`.padStart(6);
+      let qty = `${item.weight} Kg`.padStart(7);
+      let total = `₹${item.total.toFixed(2)}`.padStart(10) + "   "; // 3 spaces for better alignment
 
-    // 🔹 Reset to default
-    data += "\x1B\x32";
-    data += "Back to normal spacing.\n";
+      data += `${name}${price} x ${qty} = ${total}\n`;
+      data += "\x1B\x21\x01\n";
+      data += "\x1B\x21\x00";
+    });
 
-    // 🔹 Cut paper
-    data += "\x1D\x56\x41";
+    data += "\x1B\x61\x01"; // Center align
+    data += "\x1B\x21\x00";
+    data += "------------------------------\n";
+    data += "\x1B\x21\x10"; // Bold & double-size
+    data += `Total: ₹${finalTotal.toFixed(2)}\n`;
+    data += "\x1B\x21\x00"; // Reset font
+    data += "------------------------------\n";
+    data += "Thank You! 😊\n";
+    data += "------------------------------\n\n";
+
+    data += "\x1D\x56\x41"; // Cut paper (if supported)
+
     // Encode for RawBT
     let encodedData = encodeURIComponent(data);
     window.location.href = `intent:${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
