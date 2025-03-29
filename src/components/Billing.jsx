@@ -198,7 +198,7 @@ export default function Billing() {
     items.forEach((item, index) => {
       data += `${index + 1}. ${" "} ${item.weight} Kg x ₹${item.price}  = ₹${
         item.total
-      }\n`;
+      }\n\n`;
     });
 
     // Print each item with **small spacing**
