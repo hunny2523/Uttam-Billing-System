@@ -195,22 +195,24 @@ export default function Billing() {
     data += "\x1B\x21\x00"; // Reset text
     // right aligned
     data += "\x1B\x61\x02";
-    data += "\x1B\x21\x08"; // Slightly larger font for items
+    data += "\x1B\x21\x10"; // Slightly larger font for items
     // items.forEach((item, index) => {
     //   data += `${index + 1}. ${" "} ${item.weight} Kg x ₹${item.price}  = ₹${
     //     item.total
     //   }\n`;
     // });
     // Print each item in right-aligned table format
+    // Print each item in right-aligned table format with 3 spaces at end
     items.forEach((item, index) => {
-      let name = `${index + 1}. `.padEnd(6); // Index
+      let name = `${index + 1}. `.padEnd(3); // Index
       let price = `₹${item.price}`.padStart(7);
       let qty = `${item.weight}Kg`.padStart(6);
-      let total = `₹${item.total.toFixed(2)}`.padStart(8);
+      let total = `₹${item.total.toFixed(2)}`.padStart(8) + "   "; // 3 spaces
 
       data += `${name}${price}${qty}${total}\n`;
     });
 
+    data += "\x1B\x61\x01"; // center aligned
     data += "\x1B\x21\x00";
     data += "------------------------------\n";
     data += "\x1B\x21\x10"; // Bold & double-size
