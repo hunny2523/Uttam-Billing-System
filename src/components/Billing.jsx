@@ -201,7 +201,7 @@ export default function Billing() {
       let name = `${index + 1}.`.padEnd(3); // Index with consistent spacing
       let price = `₹${item.price}`.padStart(6);
       let qty = `${item.weight} Kg`.padStart(7);
-      let total = `₹${item.total}`.padStart(10) + "    "; // 3 spaces for better alignment
+      let total = `₹${item.total}`.padStart(8) + "    "; // 3 spaces for better alignment
 
       data += `${name}${price} x ${qty} = ${total}\n`;
       data += "\x1B\x21\x01\n";
@@ -217,8 +217,6 @@ export default function Billing() {
     data += "------------------------------\n";
     data += "Thank You! 😊\n";
     data += "------------------------------\n\n";
-
-    data += "\x1D\x56\x41"; // Cut paper (if supported)
 
     // Encode for RawBT
     let encodedData = encodeURIComponent(data);
