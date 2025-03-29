@@ -175,7 +175,7 @@ export default function Billing() {
     data += "Uttam Masala\n\n";
 
     // Address and phone number
-    data += "\n\x1B\x21\x01"; // Small bold text
+    data += "\x1B\x21\x01"; // Small bold text
     data += "Ahmedabad-Kalol Highway\n";
     data += "Shertha, Gandhinagar-382423\n";
     data += "M-98980 70258\n";
@@ -188,18 +188,13 @@ export default function Billing() {
     data += `Date: ${new Date().toLocaleString()}\n`;
     data += "------------------------------\n";
     data += `Name: ${customerName}\n`;
-    data += "------------------------------\n\n";
+    data += "------------------------------\n";
 
     data += "\x1B\x21\x08"; // Bold text for items
-    data += "Items:\n";
+    data += "Items:\n\n";
     data += "\x1B\x21\x00"; // Reset text
     // right aligned
     data += "\x1B\x61\x02";
-    items.forEach((item, index) => {
-      data += `${index + 1}. ${" "} ${item.weight} Kg x ₹${item.price}  = ₹${
-        item.total
-      }\n\n`;
-    });
 
     // Print each item with **small spacing**
     items.forEach((item, index) => {
@@ -208,7 +203,8 @@ export default function Billing() {
       let qty = `${item.weight} Kg `.padStart(6);
       let total = `₹${item.total}`.padStart(8) + "   "; // 3 spaces
 
-      data += `${name}${price} x ${qty} = ${total}\n\n`;
+      data += `${name}${price} x ${qty} = ${total}\n`;
+      data += "\x1B\x21\x01\n";
     });
 
     data += "\x1B\x61\x01"; // center aligned
