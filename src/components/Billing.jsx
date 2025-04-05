@@ -201,13 +201,13 @@ export default function Billing() {
 
     // Print each item with **small spacing**
     items.forEach((item, index) => {
-      let index = `${index + 1}.`.padEnd(3); // Index with consistent spacing
+      let indexNo = `${index + 1}.`.padEnd(3); // Index with consistent spacing
       let name = `${item.name}`.padEnd(15); // Index with consistent spacing
       let price = `₹${item.price}`.padStart(6);
       let qty = `${item.weight} Kg`.padStart(7);
       let total = `₹${item.total}`.padStart(8) + "    "; // 3 spaces for better alignment
 
-      data += `${index} ${" "} ${name} ${price} x ${qty} = ${total}\n`;
+      data += `${indexNo} ${" "} ${name} ${price} x ${qty} = ${total}\n`;
       data += "\x1B\x21\x01\n";
       data += "\x1B\x21\x00";
     });
