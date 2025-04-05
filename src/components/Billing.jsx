@@ -187,11 +187,11 @@ export default function Billing() {
       let indexNo = `${index + 1}.`.padEnd(3); // Index with consistent spacing
       let name =
         item.name.length > 10
-          ? item.name.slice(0, 10) + "…"
-          : item.name.padEnd(10); // Limit name length
-      let price = `₹${item.price}`.padStart(6);
+          ? item.name.slice(0, 10) + ".."
+          : item.name.padEnd(12); // Limit name length
+      let price = `₹${item.price}`.padStart(4);
       let qty = `${item.weight} Kg`.padStart(7);
-      let total = `₹${item.total}`.padStart(8) + "    "; // 3 spaces for better alignment
+      let total = `₹${item.total}`.padStart(6) + "    "; // 3 spaces for better alignment
 
       data += `${indexNo} ${" "} ${name} ${price} x ${qty} = ${total}\n`;
       data += "\x1B\x21\x01\n";
