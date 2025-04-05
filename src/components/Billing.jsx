@@ -202,7 +202,10 @@ export default function Billing() {
     // Print each item with **small spacing**
     items.forEach((item, index) => {
       let indexNo = `${index + 1}.`.padEnd(3); // Index with consistent spacing
-      let name = `${item.name}`.padEnd(15); // Index with consistent spacing
+      let name =
+        item.name.length > 10
+          ? item.name.slice(0, 10) + "…"
+          : item.name.padEnd(10); // Limit name length
       let price = `₹${item.price}`.padStart(6);
       let qty = `${item.weight} Kg`.padStart(7);
       let total = `₹${item.total}`.padStart(8) + "    "; // 3 spaces for better alignment
@@ -227,6 +230,39 @@ export default function Billing() {
     window.location.href = `intent:${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
     saveBillToDB();
   }
+
+  const printGujaratiReceipt = () => {
+    const receiptHtml = `
+    <div style="width: 58mm; font-size: 14px; font-family: sans-serif;">
+      <h2 style="text-align: center;">🛒 ઉત્તમ મસાલા</h2>
+      <p style="text-align: center;">Ahmedabad-Kalol Highway, Shertha, Gandhinagar-382423</p>
+      <p style="text-align: center;">📞 98980 70258</p>
+      <hr />
+      <p>તારીખ: ${new Date().toLocaleString()}</p>
+      <p>બિલ નંબર: ${billNumber}</p>
+      <p>ગ્રાહકનું નામ: ${customerName}</p>
+      <hr />
+      <h4>આઇટમ્સ:</h4>
+      <ul>
+        ${items
+          .map(
+            (item, index) =>
+              `<li>${index + 1}. ${item.name} - ₹${item.price} x ${
+                item.weight
+              }Kg = ₹${item.total}</li>`
+          )
+          .join("")}
+      </ul>
+      <hr />
+      <h3>💰 કુલ રકમ: ₹${finalTotal.toFixed(2)}</h3>
+      <hr />
+      <p style="text-align: center;">આભાર! 😊</p>
+    </div>
+  `;
+
+    const encoded = encodeURIComponent(receiptHtml);
+    window.location.href = `rawbt://print?text=${encoded}`;
+  };
 
   async function printReceipt2() {
     try {
@@ -369,6 +405,13 @@ export default function Billing() {
           disabled={items.length === 0}
         >
           Print Bill
+        </Button>
+        <Button
+          className="mt-4 w-full"
+          onClick={printGujaratiReceipt}
+          disabled={items.length === 0}
+        >
+          Print Bill print
         </Button>
         <Button
           className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white"
