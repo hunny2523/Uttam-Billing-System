@@ -80,9 +80,9 @@ const itemListEnglish = [
   { label: "Dabi Marchu", value: "dabi-marchu" },
   { label: "Golar Marchu", value: "golar-marchu" },
 
-  { label: "Haldar Visnagri", value: "haldar-visnagri" },
-  { label: "Haldar Rajapuri", value: "haldar-rajapuri" },
-  { label: "Haldar Selam", value: "haldar-salem" },
+  { label: "Visnagri Haldar", value: "haldar-visnagri" },
+  { label: "Rajapuri Haldar", value: "haldar-rajapuri" },
+  { label: "Selam Haldar", value: "haldar-salem" },
 
   { label: "Dhana Powder", value: "dhana-powder" },
   { label: "Dhanajiru", value: "dhanajiru" },

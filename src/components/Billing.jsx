@@ -186,8 +186,8 @@ export default function Billing() {
     items.forEach((item, index) => {
       let indexNo = `${index + 1}.`.padEnd(3); // Index with consistent spacing
       let name =
-        item.name.length > 10
-          ? item.name.slice(0, 10) + ".."
+        item.name.length > 11
+          ? item.name.slice(0, 11) + "."
           : item.name.padEnd(12); // Limit name length
       let price = `₹${item.price}`.padStart(4);
       let qty = `${item.weight} Kg`.padStart(7);
