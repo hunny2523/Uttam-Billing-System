@@ -13,6 +13,7 @@ import {
   limit,
 } from "firebase/firestore";
 import CloseIcon from "../icons/CloseIcon";
+import Search from "./Search";
 
 export default function Billing() {
   const [items, setItems] = useState([]);
@@ -23,6 +24,7 @@ export default function Billing() {
   const [errors, setErrors] = useState({});
   const [deviceName, setDeviceName] = useState("");
   const [billNumber, setBillNumber] = useState(1);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const printRef = useRef(null);
   const priceRef = useRef(null);
@@ -74,10 +76,11 @@ export default function Billing() {
     if (!validateItemInputs()) return;
     if (!price || !weight) return;
     const total = parseFloat(price) * parseFloat(weight);
-    setItems([...items, { price, weight, total }]);
+    setItems([...items, { name: selectedItem?.label, price, weight, total }]);
     setPrice("");
     setWeight("");
     setErrors({});
+    setSelectedItem(null);
 
     // Auto-focus back to price input
     if (priceRef.current) {
@@ -92,9 +95,9 @@ export default function Billing() {
 
     let message = `🧾 *Bill No: ${billNumber}* \n`;
     items.forEach((item, index) => {
-      message += `${index + 1}. ₹${item.price} x ${
-        item.weight
-      } Kg = ₹${item.total.toFixed(2)}\n`;
+      message += `${index + 1}. ${item.name} ${item.weight} Kg x ₹${
+        item.price
+      }  = ₹${item.total.toFixed(2)}\n`;
     });
     message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
 
@@ -193,17 +196,18 @@ export default function Billing() {
     data += "\x1B\x21\x08"; // Bold text for items
     data += "Items:\n\n";
     data += "\x1B\x21\x00"; // Reset text
-    // right aligned
-    data += "\x1B\x61\x02";
+    // // right aligned
+    // data += "\x1B\x61\x02";
 
     // Print each item with **small spacing**
     items.forEach((item, index) => {
-      let name = `${index + 1}.`.padEnd(3); // Index with consistent spacing
+      let index = `${index + 1}.`.padEnd(3); // Index with consistent spacing
+      let name = `${item.name}`.padEnd(15); // Index with consistent spacing
       let price = `₹${item.price}`.padStart(6);
       let qty = `${item.weight} Kg`.padStart(7);
       let total = `₹${item.total}`.padStart(8) + "    "; // 3 spaces for better alignment
 
-      data += `${name}${price} x ${qty} = ${total}\n`;
+      data += `${index} ${" "} ${name} ${price} x ${qty} = ${total}\n`;
       data += "\x1B\x21\x01\n";
       data += "\x1B\x21\x00";
     });
@@ -255,6 +259,12 @@ export default function Billing() {
       <Card className="w-full p-3 max-w-md  bg-white shadow-lg rounded-2xl">
         <h2 className="text-xl font-bold text-center mb-4">Uttam Masala</h2>
         <p className="text-center font-semibold">Bill No: {billNumber}</p>
+        <div className="flex flex-col">
+          <Search
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
+          />
+        </div>
         <div className="flex gap-2 mb-4">
           <div className="flex flex-col">
             <Input
@@ -292,6 +302,7 @@ export default function Billing() {
               key={index}
               className="flex justify-between bg-gray-50 p-2 mb-2 rounded-lg"
             >
+              <span>{item.name}</span>
               <span>
                 {item.price} x {item.weight} Kg
               </span>
