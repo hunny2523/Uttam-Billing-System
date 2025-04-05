@@ -150,25 +150,8 @@ export default function Billing() {
     }
   };
 
-  const printReceipt = async () => {
-    if (items.length === 0) return;
-    window.print();
-    await saveBillToDB();
-  };
-
   const removeItem = (indexToRemove) => {
     setItems(items.filter((_, index) => index !== indexToRemove));
-  };
-
-  const getTexts = () => {
-    let message = `🧾 *Bill No: ${billNumber}* \n`;
-    items.forEach((item, index) => {
-      message += `${index + 1}. ₹${item.price} x ${
-        item.weight
-      } Kg = ₹${item.total.toFixed(2)}\n`;
-    });
-    message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
-    return message;
   };
 
   function printReceipt3() {
@@ -229,65 +212,6 @@ export default function Billing() {
     let encodedData = encodeURIComponent(data);
     window.location.href = `intent:${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
     saveBillToDB();
-  }
-
-  const printGujaratiReceipt = () => {
-    const receiptHtml = `
-    <div style="width: 58mm; font-size: 14px; font-family: sans-serif;">
-      <h2 style="text-align: center;">🛒 ઉત્તમ મસાલા</h2>
-      <p style="text-align: center;">Ahmedabad-Kalol Highway, Shertha, Gandhinagar-382423</p>
-      <p style="text-align: center;">📞 98980 70258</p>
-      <hr />
-      <p>તારીખ: ${new Date().toLocaleString()}</p>
-      <p>બિલ નંબર: ${billNumber}</p>
-      <p>ગ્રાહકનું નામ: ${customerName}</p>
-      <hr />
-      <h4>આઇટમ્સ:</h4>
-      <ul>
-        ${items
-          .map(
-            (item, index) =>
-              `<li>${index + 1}. ${item.name} - ₹${item.price} x ${
-                item.weight
-              }Kg = ₹${item.total}</li>`
-          )
-          .join("")}
-      </ul>
-      <hr />
-      <h3>💰 કુલ રકમ: ₹${finalTotal.toFixed(2)}</h3>
-      <hr />
-      <p style="text-align: center;">આભાર! 😊</p>
-    </div>
-  `;
-
-    const encoded = encodeURIComponent(receiptHtml);
-    window.location.href = `rawbt://print?text=${encoded}`;
-  };
-
-  async function printReceipt2() {
-    try {
-      const port = await navigator.serial.requestPort();
-      await port.open({ baudRate: 9600 });
-
-      const writer = port.writable.getWriter();
-      const encoder = new TextEncoder();
-
-      let message = `🧾 *Bill No: ${billNumber}* \n`;
-      items.forEach((item, index) => {
-        message += `${index + 1}.  ${item.weight} Kg x ₹${
-          item.price
-        }  = ₹${item.total.toFixed(2)}\n`;
-      });
-      message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
-
-      await writer.write(encoder.encode(`${message}\n\n`));
-      await writer.write(encoder.encode("\x1B\x69")); // ESC/POS cut paper command
-
-      writer.releaseLock();
-      await port.close();
-    } catch (error) {
-      console.error("Printing failed:", error);
-    }
   }
 
   return (
@@ -374,12 +298,6 @@ export default function Billing() {
             <p className="text-red-500 text-sm">{errors.phoneNumber}</p>
           )}
         </div>
-        {/* <Button
-          className="mt-2 w-full bg-purple-600 hover:bg-green-700"
-          onClick={printReceipt2}
-        >
-          print with code
-        </Button> */}
         <Button
           className="mt-2 w-full bg-green-600 hover:bg-green-700"
           onClick={sendWhatsApp}
@@ -387,31 +305,12 @@ export default function Billing() {
         >
           Send via WhatsApp
         </Button>
-        {/* <Button
-          className="mt-4 w-full"
-          onClick={printReceipt}
-          disabled={items.length === 0}
-        >
-          Print Bill
-        </Button>
-        <a
-          href={`intent://print?data=${getTexts()}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`}
-        >
-          Print
-        </a> */}
         <Button
           className="mt-4 w-full"
           onClick={printReceipt3}
           disabled={items.length === 0}
         >
           Print Bill
-        </Button>
-        <Button
-          className="mt-4 w-full"
-          onClick={printGujaratiReceipt}
-          disabled={items.length === 0}
-        >
-          Print Bill print
         </Button>
         <Button
           className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white"

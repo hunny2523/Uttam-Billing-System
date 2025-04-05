@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CreatableSelect from "react-select/creatable";
 
-const itemList = [
+const itemListGujarati = [
   { label: "દેશી મરચું", value: "desi-marchu" },
   { label: "રેશમપટ્ટી મરચું", value: "resampatti-marchu" },
   { label: "કાશ્મીરી મરચું", value: "kashmiri-marchu" },
@@ -70,9 +70,78 @@ const itemList = [
   { label: "સાંભાર મસાલો", value: "sambhar-masala" },
 ];
 
+const itemListEnglish = [
+  { label: "Desi Marchu", value: "desi-marchu" },
+  { label: "Resampatti Marchu", value: "resampatti-marchu" },
+  { label: "Kashmiri Marchu", value: "kashmiri-marchu" },
+  { label: "Mix Marchu", value: "mix-marchu" },
+  { label: "Patni Marchu", value: "patni-marchu" },
+  { label: "Teja Marchu", value: "teja-marchu" },
+  { label: "Dabi Marchu", value: "dabi-marchu" },
+  { label: "Golar Marchu", value: "golar-marchu" },
+
+  { label: "Haldar Visnagri", value: "haldar-visnagri" },
+  { label: "Haldar Rajapuri", value: "haldar-rajapuri" },
+  { label: "Haldar Selam", value: "haldar-salem" },
+
+  { label: "Dhana Powder", value: "dhana-powder" },
+  { label: "Dhanajiru", value: "dhanajiru" },
+  { label: "Masala Dhanajiru", value: "masala-dhanajiru" },
+
+  { label: "Jeera", value: "jeera" },
+  { label: "Jeera GM", value: "jeera GM" },
+
+  { label: "Rai Khamani", value: "rai" },
+  { label: "Rai Medium", value: "rai" },
+  { label: "Rai", value: "rai" },
+
+  { label: "Tal", value: "tal" },
+
+  { label: "Variyaali", value: "variyaali" },
+  { label: "Aburoad Variyaali", value: "aburoad-variyaali" },
+  { label: "Lakhnawi Variyaali", value: "lakhnawi-variyaali" },
+
+  { label: "Kali Hing", value: "kali-hing" },
+  { label: "Hing", value: "hing" },
+  { label: "Strong Hing", value: "strong-hing" },
+
+  { label: "Achar Masala", value: "achar-masala" },
+  { label: "Ajmo KD", value: "ajmo-kd" },
+  { label: "Ajmo GM", value: "ajmo-gm" },
+  { label: "Ajmo", value: "ajmo" },
+  { label: "Methi", value: "methi" },
+  { label: "Kala Kokum", value: "kala-kokum" },
+  { label: "Kokum Phool", value: "kokum-phool" },
+  { label: "Akha Dhana", value: "akha-dhana" },
+  { label: "Dhani", value: "dhani" },
+
+  { label: "Garam Masala", value: "garam-masala" },
+  { label: "Taj", value: "taj" },
+  { label: "Laving", value: "laving" },
+  { label: "Mari", value: "mari" },
+  { label: "Badiya", value: "badiya" },
+  { label: "Elcha", value: "elcha" },
+  { label: "Tamalpatra", value: "tamalpatra" },
+  { label: "Elaichi", value: "elaichi" },
+  { label: "Javantri", value: "javantri" },
+  { label: "Alsi", value: "alsi" },
+  { label: "Galya Aamla", value: "galya-aamla" },
+
+  { label: "Roasted Mukhwas", value: "roasted-mukhwas" },
+  { label: "Gujarati Mukhwas", value: "gujarati-mukhwas" },
+  { label: "Alsi Mukhwas", value: "alsi-mukhwas" },
+  { label: "Dhanadal", value: "dhanadal" },
+  { label: "Lasan Chutney", value: "lasan-chutney" },
+  { label: "Dodvani Chutney", value: "dodvani-chutney" },
+  { label: "Chat Masala", value: "chat-masala" },
+  { label: "Chaas Masala", value: "chaas-masala" },
+  { label: "Chai Masala", value: "chai-masala" },
+  { label: "Sambhar Masala", value: "sambhar-masala" },
+];
+
 const Search = ({ selectedItem, setSelectedItem }) => {
   // Predefined items
-  const [itemsList, setItemsList] = useState(itemList);
+  const [itemsList, setItemsList] = useState(itemListEnglish);
 
   // Function to handle selection or new entry
   const handleChange = (newValue) => {
