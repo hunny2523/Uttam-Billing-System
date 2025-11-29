@@ -3,15 +3,8 @@ import { Card, CardContent } from "./Card";
 import { Input } from "./Input";
 import { Button } from "./Button";
 import { useEffect } from "react";
-import { db } from "../firebaseConfig";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-} from "firebase/firestore";
+import { createBill, getNextBillNumber } from "../services/bill.service";
+import { toast } from "react-toastify";
 import CloseIcon from "../icons/CloseIcon";
 import Search from "./Search";
 
@@ -42,16 +35,17 @@ export default function Billing() {
 
     setDeviceName(getDeviceName());
 
-    // Fetch last bill number
-    const getLastBillNumber = async () => {
-      const q = query(colRef, orderBy("billNumber", "desc"), limit(1));
-      const snapshot = await getDocs(q);
-      if (!snapshot.empty) {
-        const lastBill = snapshot.docs[0].data();
-        setBillNumber(lastBill.billNumber + 1);
+    // Fetch next bill number from backend
+    const fetchNextBillNumber = async () => {
+      try {
+        const nextNumber = await getNextBillNumber();
+        setBillNumber(nextNumber);
+      } catch (error) {
+        console.error("Error fetching bill number:", error);
+        toast.error("Failed to fetch bill number");
       }
     };
-    getLastBillNumber();
+    fetchNextBillNumber();
   }, []);
 
   const validateItemInputs = () => {
@@ -93,24 +87,6 @@ export default function Billing() {
 
   const finalTotal = items.reduce((sum, item) => sum + item.total, 0);
 
-  const sendWhatsApp = async () => {
-    if (!validatePhoneNumber() || items.length === 0) return;
-
-    let message = `🧾 *Bill No: ${billNumber}* \n`;
-    items.forEach((item, index) => {
-      message += `${index + 1}. ${item.name} ${item.weight} Kg x ₹${
-        item.price
-      }  = ₹${item.total.toFixed(2)}\n`;
-    });
-    message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
-
-    const whatsappURL = `https://wa.me/+91${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappURL, "_blank");
-    await saveBillToDB();
-  };
-
   const clearBill = () => {
     setItems([]);
     setPrice("");
@@ -120,44 +96,73 @@ export default function Billing() {
     setErrors({});
   };
 
-  const colRef = collection(db, "bills");
+  // Main function that handles: Save → Print → WhatsApp (if phone provided)
+  const handleSaveBill = async () => {
+    // Validate before proceeding
+    if (items.length === 0) {
+      toast.error("Please add items to the bill");
+      return;
+    }
 
-  useEffect(() => {
-    const getBills = async () => {
-      const data = await getDocs(colRef);
-      console.log(data);
-    };
-    getBills();
-  }, []);
-
-  const saveBillToDB = async () => {
-    if (items.length === 0) return;
+    // Validate phone number only if provided
+    if (phoneNumber && !validatePhoneNumber()) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
 
     try {
+      // Step 1: Save bill to database
       const billData = {
         billNumber,
         items,
         total: finalTotal,
-        phoneNumber,
-        customerName,
-        deviceName,
-        timestamp: new Date(),
+        phoneNumber: phoneNumber || null,
+        customerName: customerName || null,
+        timestamp: new Date().toISOString(),
       };
-      const colRef = collection(db, "bills");
-      const docRef = await addDoc(colRef, billData);
-      alert("Bill saved successfully!");
-      setBillNumber(billNumber + 1);
+
+      const response = await createBill(billData);
+      toast.success("Bill saved successfully!");
+
+      // Step 2: Open WhatsApp FIRST (before print redirect)
+      // This ensures WhatsApp opens even if print redirects
+      const shouldSendWhatsApp = phoneNumber && phoneNumber.length === 10;
+      if (shouldSendWhatsApp) {
+        try {
+          openWhatsApp();
+        } catch (whatsappError) {
+          console.error("WhatsApp error:", whatsappError);
+          // No toast needed - WhatsApp is optional
+        }
+      }
+
+      // Step 3: Get next bill number from response
+      if (response && response.bill) {
+        const nextNumber = response.bill.billNumber + 1;
+        setBillNumber(nextNumber);
+      }
+
+      // Clear form
       clearBill();
+
+      // Step 4: Print receipt via RawBT (LAST - because it redirects)
+      // Small delay to allow WhatsApp to open first
+      setTimeout(() => {
+        try {
+          printReceipt();
+        } catch (printError) {
+          console.error("Print error:", printError);
+          toast.warning("Bill saved but print failed. Check RawBT connection.");
+        }
+      }, 300);
     } catch (error) {
       console.error("Error saving bill:", error);
+      // Error toast is already shown by interceptor
     }
   };
 
-  const removeItem = (indexToRemove) => {
-    setItems(items.filter((_, index) => index !== indexToRemove));
-  };
-
-  function printReceipt3() {
+  // Print receipt function
+  const printReceipt = () => {
     let data = "\x1B\x40"; // Initialize printer
     data += "\x1B\x61\x01"; // Center align
     data += "\x1B\x21\x10"; // Bold, double-size
@@ -170,31 +175,36 @@ export default function Billing() {
     data += "M-98980 70258\n";
 
     data += "------------------------------\n";
-    data += "\x1B\x21\x08"; // Slightly larger bold text for "Items"
+    data += "\x1B\x21\x08"; // Slightly larger bold text
     data += `Bill No. ${billNumber} \n`;
     data += "\x1B\x21\x00";
     data += "------------------------------\n";
     data += `Date: ${new Date().toLocaleString()}\n`;
     data += "------------------------------\n";
-    data += `Name: ${customerName}\n`;
-    data += "------------------------------\n";
+    if (customerName) {
+      data += `Name: ${customerName}\n`;
+    }
+    if (phoneNumber) {
+      data += `Phone: ${phoneNumber}\n`;
+    }
+    if (customerName || phoneNumber) {
+      data += "------------------------------\n";
+    }
 
     data += "\x1B\x21\x08"; // Bold text for items
     data += "Items:\n\n";
     data += "\x1B\x21\x00"; // Reset text
-    // // right aligned
-    // data += "\x1B\x61\x02";
 
-    // Print each item with **small spacing**
+    // Print each item
     items.forEach((item, index) => {
-      let indexNo = `${index + 1}.`.padEnd(3); // Index with consistent spacing
+      let indexNo = `${index + 1}.`.padEnd(3);
       let name =
         item.name.length > 11
           ? item.name.slice(0, 11) + "."
-          : item.name.padEnd(12); // Limit name length
+          : item.name.padEnd(12);
       let price = `₹${item.price}`.padStart(4);
       let qty = `${item.weight} Kg`.padStart(7);
-      let total = `₹${item.total}`.padStart(6) + "    "; // 3 spaces for better alignment
+      let total = `₹${item.total.toFixed(2)}`.padStart(6) + "    ";
 
       data += `${indexNo} ${" "} ${name} ${price} x ${qty} = ${total}\n`;
       data += "\x1B\x21\x01\n";
@@ -214,8 +224,36 @@ export default function Billing() {
     // Encode for RawBT
     let encodedData = encodeURIComponent(data);
     window.location.href = `intent:${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
-    saveBillToDB();
-  }
+  };
+
+  // Open WhatsApp with bill details
+  const openWhatsApp = () => {
+    let message = `🧾 *Bill No: ${billNumber}*\n`;
+    message += `📅 Date: ${new Date().toLocaleString()}\n`;
+    if (customerName) {
+      message += `👤 Name: ${customerName}\n`;
+    }
+    message += `\n*Items:*\n`;
+
+    items.forEach((item, index) => {
+      message += `${index + 1}. ${item.name}\n`;
+      message += `   ${item.weight} Kg x ₹${item.price} = ₹${item.total.toFixed(
+        2
+      )}\n`;
+    });
+
+    message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*\n\n`;
+    message += `Thank you for your business! 🙏`;
+
+    const whatsappURL = `https://wa.me/+91${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+    window.open(whatsappURL, "_blank");
+  };
+
+  const removeItem = (indexToRemove) => {
+    setItems(items.filter((_, index) => index !== indexToRemove));
+  };
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
@@ -282,7 +320,7 @@ export default function Billing() {
 
         <div className="flex flex-col my-4">
           <Input
-            placeholder="Customer Name"
+            placeholder="Customer Name (Optional)"
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
           />
@@ -293,33 +331,39 @@ export default function Billing() {
         <div className="flex flex-col my-4">
           <Input
             type="number"
-            placeholder="Customer Phone Number"
+            placeholder="Phone Number (Optional - for WhatsApp)"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
           />
           {errors.phoneNumber && (
             <p className="text-red-500 text-sm">{errors.phoneNumber}</p>
           )}
+          {phoneNumber &&
+            phoneNumber.length > 0 &&
+            phoneNumber.length !== 10 && (
+              <p className="text-yellow-600 text-sm mt-1">
+                Phone number must be 10 digits for WhatsApp
+              </p>
+            )}
         </div>
+
+        {/* Main Save Bill Button - Does everything */}
         <Button
-          className="mt-2 w-full bg-green-600 hover:bg-green-700"
-          onClick={sendWhatsApp}
-          disabled={!phoneNumber || phoneNumber.length !== 10}
-        >
-          Send via WhatsApp
-        </Button>
-        <Button
-          className="mt-4 w-full"
-          onClick={printReceipt3}
+          className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold text-lg py-3"
+          onClick={handleSaveBill}
           disabled={items.length === 0}
         >
-          Print Bill
+          {phoneNumber && phoneNumber.length === 10
+            ? "💾 Save, Print & Send WhatsApp"
+            : "💾 Save & Print Bill"}
         </Button>
+
+        {/* Clear Bill Button */}
         <Button
-          className="mt-2 w-full bg-red-600 hover:bg-red-700 text-white"
+          className="mt-3 w-full bg-red-600 hover:bg-red-700 text-white"
           onClick={clearBill}
         >
-          Clear Bill
+          🗑️ Clear Bill
         </Button>
       </Card>
 

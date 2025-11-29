@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { getBills } from "../services/bill.service";
+import { toast } from "react-toastify";
 
 export default function SearchPage() {
   const [billNumber, setBillNumber] = useState("");
@@ -13,38 +13,33 @@ export default function SearchPage() {
     setResults([]);
 
     try {
-      const billsRef = collection(db, "bills");
-      let q;
+      const filters = {};
 
       if (billNumber.trim()) {
-        // Convert to number, since Firestore stores billNumber as a number
-        const billNum = parseInt(billNumber.trim(), 10);
-        q = query(billsRef, where("billNumber", "==", billNum));
+        filters.billNumber = parseInt(billNumber.trim(), 10);
       } else if (selectedDate) {
-        // Convert selected date to a range using Timestamps
+        // Convert selected date to start and end of day
         const selected = new Date(selectedDate);
         const start = new Date(selected.setHours(0, 0, 0, 0));
         const end = new Date(selected.setHours(23, 59, 59, 999));
 
-        q = query(
-          billsRef,
-          where("date", ">=", Timestamp.fromDate(start)),
-          where("date", "<=", Timestamp.fromDate(end))
-        );
+        filters.startDate = start.toISOString();
+        filters.endDate = end.toISOString();
       } else {
-        alert("Please enter a bill number or select a date");
+        toast.error("Please enter a bill number or select a date");
+        setLoading(false);
         return;
       }
 
-      const querySnapshot = await getDocs(q);
-      const bills = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setResults(bills);
+      const response = await getBills(filters);
+      setResults(response.bills || []);
+
+      if (!response.bills || response.bills.length === 0) {
+        toast.info("No bills found");
+      }
     } catch (err) {
       console.error("Error searching bills:", err);
-      alert("Error fetching data");
+      // Error toast is already shown by interceptor
     } finally {
       setLoading(false);
     }
@@ -95,7 +90,7 @@ export default function SearchPage() {
                   </p>
                   <p>
                     <strong>📅 Date:</strong>{" "}
-                    {bill.timeStamp?.toDate().toLocaleString()}
+                    {new Date(bill.timestamp).toLocaleString()}
                   </p>
                   <p>
                     <strong>💰 Total:</strong> ₹{bill.total}
