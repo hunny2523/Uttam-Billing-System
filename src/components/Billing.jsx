@@ -46,38 +46,6 @@ export default function Billing() {
       }
     };
     fetchNextBillNumber();
-
-    // Check for pending WhatsApp (after returning from print)
-    const checkPendingWhatsApp = () => {
-      const pendingData = localStorage.getItem("pendingWhatsApp");
-      if (pendingData) {
-        try {
-          const data = JSON.parse(pendingData);
-          // Check if data is not too old (within 2 minutes)
-          if (Date.now() - data.timestamp < 120000) {
-            // Open WhatsApp after small delay
-            setTimeout(() => {
-              const message = generateWhatsAppMessage(
-                data.billNumber,
-                data.customerName,
-                data.items,
-                data.finalTotal
-              );
-              const whatsappURL = `https://wa.me/+91${
-                data.phoneNumber
-              }?text=${encodeURIComponent(message)}`;
-              window.open(whatsappURL, "_blank");
-            }, 1000);
-          }
-          // Clean up
-          localStorage.removeItem("pendingWhatsApp");
-        } catch (error) {
-          console.error("Error processing pending WhatsApp:", error);
-          localStorage.removeItem("pendingWhatsApp");
-        }
-      }
-    };
-    checkPendingWhatsApp();
   }, []);
 
   const validateItemInputs = () => {
@@ -128,7 +96,7 @@ export default function Billing() {
     setErrors({});
   };
 
-  // Main function that handles: Save → Print → WhatsApp (if phone provided)
+  // Main function that handles: Save → Print (WhatsApp sent automatically by backend)
   const handleSaveBill = async () => {
     // Validate before proceeding
     if (items.length === 0) {
@@ -156,44 +124,23 @@ export default function Billing() {
       const response = await createBill(billData);
       toast.success("Bill saved successfully!");
 
+      // WhatsApp is automatically sent by backend if phone number is valid
+
       // Step 2: Get next bill number from response
       if (response && response.bill) {
         const nextNumber = response.bill.billNumber + 1;
         setBillNumber(nextNumber);
       }
 
-      // Step 3: Store WhatsApp flag in localStorage before print redirect
-      const shouldSendWhatsApp = phoneNumber && phoneNumber.length === 10;
-      if (shouldSendWhatsApp) {
-        // Store data for WhatsApp to open after returning from print
-        localStorage.setItem(
-          "pendingWhatsApp",
-          JSON.stringify({
-            billNumber,
-            customerName,
-            phoneNumber,
-            items,
-            finalTotal,
-            timestamp: Date.now(),
-          })
-        );
-      }
-
       // Clear form
       clearBill();
 
-      // Step 4: Print receipt via RawBT (will redirect to RawBT app)
+      // Step 3: Print receipt via RawBT (redirects to printer)
       try {
         printReceipt();
       } catch (printError) {
         console.error("Print error:", printError);
         toast.warning("Bill saved but print failed. Check RawBT connection.");
-
-        // If print fails and WhatsApp is pending, open it now
-        if (shouldSendWhatsApp) {
-          setTimeout(() => openWhatsApp(), 500);
-          localStorage.removeItem("pendingWhatsApp");
-        }
       }
     } catch (error) {
       console.error("Error saving bill:", error);
@@ -264,41 +211,6 @@ export default function Billing() {
     // Encode for RawBT
     let encodedData = encodeURIComponent(data);
     window.location.href = `intent:${encodedData}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
-  };
-
-  // Helper function to generate WhatsApp message
-  const generateWhatsAppMessage = (billNum, custName, itemsList, total) => {
-    let message = `🧾 *Bill No: ${billNum}*\n`;
-    message += `📅 Date: ${new Date().toLocaleString()}\n`;
-    if (custName) {
-      message += `👤 Name: ${custName}\n`;
-    }
-    message += `\n*Items:*\n`;
-
-    itemsList.forEach((item, index) => {
-      message += `${index + 1}. ${item.name}\n`;
-      message += `   ${item.weight} Kg x ₹${item.price} = ₹${item.total.toFixed(
-        2
-      )}\n`;
-    });
-
-    message += `\n💰 *Total: ₹${total.toFixed(2)}*\n\n`;
-    message += `Thank you for your business! 🙏`;
-    return message;
-  };
-
-  // Open WhatsApp with bill details
-  const openWhatsApp = () => {
-    const message = generateWhatsAppMessage(
-      billNumber,
-      customerName,
-      items,
-      finalTotal
-    );
-    const whatsappURL = `https://wa.me/+91${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappURL, "_blank");
   };
 
   const removeItem = (indexToRemove) => {
