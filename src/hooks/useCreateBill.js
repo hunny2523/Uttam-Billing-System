@@ -15,7 +15,7 @@ export const useCreateBill = () => {
             return response;
         },
         onSuccess: (data) => {
-
+            console.log(data)
             // Check WhatsApp status and show appropriate message
             if (data?.whatsapp) {
                 if (data.whatsapp.success) {
@@ -25,6 +25,8 @@ export const useCreateBill = () => {
                         `Bill saved successfully, but WhatsApp sending failed`
                     );
                 }
+            } else {
+                toast.success("Bill saved!");
             }
         },
         onError: (error) => {
