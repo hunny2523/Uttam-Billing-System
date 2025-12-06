@@ -7,10 +7,10 @@ export default function BillingActions({
   onClearBill,
 }) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 mt-3">
       {/* Main Save Bill Button */}
       <Button
-        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold text-lg py-3 disabled:cursor-not-allowed transition-all"
+        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold text-lg py-2 disabled:cursor-not-allowed transition-all"
         onClick={onSaveBill}
         disabled={itemsCount === 0 || isLoading}
       >
