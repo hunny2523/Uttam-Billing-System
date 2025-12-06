@@ -25,31 +25,33 @@ export default function BillDetailsModal({ bill, onClose }) {
         </div>
 
         {/* Bill Info */}
-        <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Customer Name</p>
-              <p className="text-lg font-semibold text-gray-900">
+        <div className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div className="bg-gray-50 p-3 rounded">
+              <p className="text-xs text-gray-600 mb-1">Customer</p>
+              <p className="text-sm font-semibold text-gray-900 truncate">
                 {bill.customerName || "—"}
               </p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Phone Number</p>
-              <p className="text-lg font-semibold text-gray-900">
+            <div className="bg-gray-50 p-3 rounded">
+              <p className="text-xs text-gray-600 mb-1">Phone</p>
+              <p className="text-sm font-semibold text-gray-900">
                 {bill.phoneNumber || "—"}
               </p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Date & Time</p>
-              <p className="text-lg font-semibold text-gray-900">
+            <div className="bg-gray-50 p-3 rounded">
+              <p className="text-xs text-gray-600 mb-1">Date & Time</p>
+              <p className="text-sm font-semibold text-gray-900">
                 {new Date(bill.timestamp).toLocaleString("en-IN", {
                   timeZone: "Asia/Kolkata",
+                  dateStyle: "short",
+                  timeStyle: "short",
                 })}
               </p>
             </div>
-            <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-600">
-              <p className="text-sm text-gray-600 mb-1">Total Amount</p>
-              <p className="text-2xl font-bold text-green-600">
+            <div className="bg-green-50 p-3 rounded border-l-4 border-green-600">
+              <p className="text-xs text-gray-600 mb-1">Total</p>
+              <p className="text-lg font-bold text-green-600">
                 ₹{bill.total.toFixed(2)}
               </p>
             </div>
@@ -57,26 +59,26 @@ export default function BillDetailsModal({ bill, onClose }) {
 
           {/* Items Table */}
           <div className="mb-4">
-            <h4 className="text-lg font-bold mb-3 text-gray-900">
+            <h4 className="text-base font-bold mb-2 text-gray-900">
               Items ({bill.items?.length || 0})
             </h4>
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300">
+              <table className="w-full border-collapse border border-gray-300 text-sm">
                 <thead>
                   <tr className="bg-gray-200">
-                    <th className="border border-gray-300 px-4 py-2 text-left font-bold text-gray-700">
+                    <th className="border border-gray-300 px-2 py-1 text-left font-bold text-gray-700">
                       #
                     </th>
-                    <th className="border border-gray-300 px-4 py-2 text-left font-bold text-gray-700">
+                    <th className="border border-gray-300 px-2 py-1 text-left font-bold text-gray-700">
                       Item Name
                     </th>
-                    <th className="border border-gray-300 px-4 py-2 text-right font-bold text-gray-700">
+                    <th className="border border-gray-300 px-2 py-1 text-right font-bold text-gray-700">
                       Price/Kg
                     </th>
-                    <th className="border border-gray-300 px-4 py-2 text-right font-bold text-gray-700">
-                      Weight (Kg)
+                    <th className="border border-gray-300 px-2 py-1 text-right font-bold text-gray-700">
+                      Weight
                     </th>
-                    <th className="border border-gray-300 px-4 py-2 text-right font-bold text-gray-700">
+                    <th className="border border-gray-300 px-2 py-1 text-right font-bold text-gray-700">
                       Total
                     </th>
                   </tr>
@@ -87,19 +89,19 @@ export default function BillDetailsModal({ bill, onClose }) {
                       key={index}
                       className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
                     >
-                      <td className="border border-gray-300 px-4 py-2 text-gray-700">
+                      <td className="border border-gray-300 px-2 py-1 text-gray-700">
                         {index + 1}
                       </td>
-                      <td className="border border-gray-300 px-4 py-2 text-gray-900 font-medium">
+                      <td className="border border-gray-300 px-2 py-1 text-gray-900 font-medium">
                         {item.name}
                       </td>
-                      <td className="border border-gray-300 px-4 py-2 text-right text-gray-700">
+                      <td className="border border-gray-300 px-2 py-1 text-right text-gray-700">
                         ₹{parseFloat(item.price).toFixed(2)}
                       </td>
-                      <td className="border border-gray-300 px-4 py-2 text-right text-gray-700">
-                        {parseFloat(item.weight).toFixed(2)}
+                      <td className="border border-gray-300 px-2 py-1 text-right text-gray-700">
+                        {parseFloat(item.weight).toFixed(2)} Kg
                       </td>
-                      <td className="border border-gray-300 px-4 py-2 text-right font-bold text-green-600">
+                      <td className="border border-gray-300 px-2 py-1 text-right font-bold text-green-600">
                         ₹{parseFloat(item.total).toFixed(2)}
                       </td>
                     </tr>
@@ -109,11 +111,11 @@ export default function BillDetailsModal({ bill, onClose }) {
                   <tr className="bg-gray-100 font-bold">
                     <td
                       colSpan="4"
-                      className="border border-gray-300 px-4 py-3 text-right text-gray-900"
+                      className="border border-gray-300 px-2 py-2 text-right text-gray-900"
                     >
                       Grand Total:
                     </td>
-                    <td className="border border-gray-300 px-4 py-3 text-right text-green-600 text-lg">
+                    <td className="border border-gray-300 px-2 py-2 text-right text-green-600">
                       ₹{bill.total.toFixed(2)}
                     </td>
                   </tr>
@@ -123,10 +125,10 @@ export default function BillDetailsModal({ bill, onClose }) {
           </div>
 
           {/* Close Button */}
-          <div className="flex justify-end mt-6">
+          <div className="flex justify-end mt-4">
             <Button
               onClick={onClose}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2"
             >
               Close
             </Button>
