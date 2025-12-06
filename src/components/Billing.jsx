@@ -133,9 +133,6 @@ export default function Billing() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
       <Card className="w-full p-3 max-w-md bg-white shadow-lg rounded-2xl">
-        {/* Header */}
-        <h2 className="text-xl font-bold text-center mb-4">Uttam Masala</h2>
-
         {/* Bill Number Display */}
         {currentBillNumber && (
           <p className="text-center font-semibold text-green-600 mb-4">
