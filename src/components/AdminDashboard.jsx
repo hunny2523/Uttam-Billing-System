@@ -58,20 +58,23 @@ export default function AdminDashboard() {
     const today = new Date();
     const year = today.getFullYear();
     const month = today.getMonth(); // 0-indexed (0 = January, 11 = December)
-    
+
     // First day of current month
     const firstDay = new Date(year, month, 1);
     // Last day of current month
     const lastDay = new Date(year, month + 1, 0);
 
     // Format as YYYY-MM-DD using local date (no timezone conversion)
-    const start = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-    const end = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
+    const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+    const end = `${year}-${String(month + 1).padStart(2, "0")}-${String(
+      lastDay.getDate()
+    ).padStart(2, "0")}`;
 
     setStartDate(start);
     setEndDate(end);
     // useQuery will automatically refetch due to queryKey change
-  };  const exportToCSV = () => {
+  };
+  const exportToCSV = () => {
     if (bills.length === 0) {
       toast.error("No bills to export");
       return;
