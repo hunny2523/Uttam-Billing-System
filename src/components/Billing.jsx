@@ -120,7 +120,7 @@ export default function Billing() {
       // Store current bill number for display and printing
       if (response && response.bill) {
         setCurrentBillNumber(response.bill.billNumber);
-        
+
         // Clear form
         clearBill();
 
