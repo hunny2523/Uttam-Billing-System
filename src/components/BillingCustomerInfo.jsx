@@ -30,13 +30,11 @@ export default function BillingCustomerInfo({
         {errors.phoneNumber && (
           <p className="text-red-500 text-sm">{errors.phoneNumber}</p>
         )}
-        {phoneNumber &&
-          phoneNumber.length > 0 &&
-          phoneNumber.length !== 10 && (
-            <p className="text-yellow-600 text-sm mt-1">
-              Phone number must be 10 digits for WhatsApp
-            </p>
-          )}
+        {phoneNumber && phoneNumber.length > 0 && phoneNumber.length !== 10 && (
+          <p className="text-yellow-600 text-sm mt-1">
+            Phone number must be 10 digits for WhatsApp
+          </p>
+        )}
       </div>
     </div>
   );

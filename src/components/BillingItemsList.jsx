@@ -18,7 +18,7 @@ export default function BillingItemsList({ items, onRemoveItem }) {
             {item.price} x {item.weight} Kg
           </span>
           <span className="font-bold">₹{item.total.toFixed(2)}</span>
-          <div 
+          <div
             onClick={() => onRemoveItem(index)}
             className="cursor-pointer hover:opacity-70"
           >

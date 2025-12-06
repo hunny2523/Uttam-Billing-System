@@ -8,17 +8,17 @@ import { toast } from "react-toastify";
  * @returns {Object} Mutation object with mutate, isPending, isSuccess, etc.
  */
 export const useCreateBill = () => {
-  return useMutation({
-    mutationFn: async (billData) => {
-      const response = await createBill(billData);
-      return response;
-    },
-    onSuccess: (data) => {
-      toast.success("Bill saved successfully!");
-    },
-    onError: (error) => {
-      console.error("Error creating bill:", error);
-      // Error toast is already shown by interceptor
-    },
-  });
+    return useMutation({
+        mutationFn: async (billData) => {
+            const response = await createBill(billData);
+            return response;
+        },
+        onSuccess: (data) => {
+            toast.success("Bill saved successfully!");
+        },
+        onError: (error) => {
+            console.error("Error creating bill:", error);
+            // Error toast is already shown by interceptor
+        },
+    });
 };

@@ -117,7 +117,9 @@ export default function Billing() {
             printWithRawBT(encodedData);
           } catch (printError) {
             console.error("Print error:", printError);
-            toast.warning("Bill saved but print failed. Check RawBT connection.");
+            toast.warning(
+              "Bill saved but print failed. Check RawBT connection."
+            );
           }
         }
       },
@@ -133,7 +135,7 @@ export default function Billing() {
       <Card className="w-full p-3 max-w-md bg-white shadow-lg rounded-2xl">
         {/* Header */}
         <h2 className="text-xl font-bold text-center mb-4">Uttam Masala</h2>
-        
+
         {/* Bill Number Display */}
         {currentBillNumber && (
           <p className="text-center font-semibold text-green-600 mb-4">
