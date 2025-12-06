@@ -14,7 +14,7 @@ export default function BillingItemInput({
   onAddItem,
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1">
       <Search selectedItem={selectedItem} setSelectedItem={setSelectedItem} />
 
       <div className="flex gap-2">
