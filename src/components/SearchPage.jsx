@@ -1,47 +1,47 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getBills } from "../services/bill.service";
 import { toast } from "react-toastify";
 
 export default function SearchPage() {
   const [billNumber, setBillNumber] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [searchParams, setSearchParams] = useState(null);
 
-  const handleSearch = async () => {
-    setLoading(true);
-    setResults([]);
+  const {
+    data: response,
+    isLoading,
+    isPreviousData,
+  } = useQuery({
+    queryKey: ["bills", searchParams],
+    queryFn: async () => {
+      if (!searchParams) return { bills: [] };
+      const result = await getBills(searchParams);
+      return result;
+    },
+    enabled: searchParams !== null,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
+  });
 
-    try {
-      const filters = {};
+  const results = response?.bills || [];
 
-      if (billNumber.trim()) {
-        filters.billNumber = parseInt(billNumber.trim(), 10);
-      } else if (selectedDate) {
-        // Convert selected date to start and end of day
-        const selected = new Date(selectedDate);
-        const start = new Date(selected.setHours(0, 0, 0, 0));
-        const end = new Date(selected.setHours(23, 59, 59, 999));
+  const handleSearch = () => {
+    if (billNumber.trim()) {
+      setSearchParams({
+        billNumber: parseInt(billNumber.trim(), 10),
+      });
+    } else if (selectedDate) {
+      const selected = new Date(selectedDate);
+      const start = new Date(selected.setHours(0, 0, 0, 0));
+      const end = new Date(selected.setHours(23, 59, 59, 999));
 
-        filters.startDate = start.toISOString();
-        filters.endDate = end.toISOString();
-      } else {
-        toast.error("Please enter a bill number or select a date");
-        setLoading(false);
-        return;
-      }
-
-      const response = await getBills(filters);
-      setResults(response.bills || []);
-
-      if (!response.bills || response.bills.length === 0) {
-        toast.info("No bills found");
-      }
-    } catch (err) {
-      console.error("Error searching bills:", err);
-      // Error toast is already shown by interceptor
-    } finally {
-      setLoading(false);
+      setSearchParams({
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+      });
+    } else {
+      toast.error("Please enter a bill number or select a date");
     }
   };
 
@@ -63,9 +63,9 @@ export default function SearchPage() {
       <button
         onClick={handleSearch}
         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        disabled={loading}
+        disabled={isLoading}
       >
-        {loading ? "Searching..." : "Search"}
+        {isLoading ? "Searching..." : "Search"}
       </button>
 
       {/* Show Results */}
@@ -125,7 +125,9 @@ export default function SearchPage() {
               </div>
             ))}
           </div>
-        ) : loading ? null : (
+        ) : isLoading ? (
+          <p className="mt-4 text-gray-500">Searching...</p>
+        ) : (
           <p className="mt-4 text-gray-500">No results yet</p>
         )}
       </div>

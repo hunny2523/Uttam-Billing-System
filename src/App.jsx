@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Auth from "./pages/Auth";
 import Billing from "./components/Billing";
 import Navbar from "./components/Navbar";
@@ -12,6 +13,17 @@ import {
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import SearchPage from "./components/SearchPage";
 import { toast } from "react-toastify";
+
+// Create a client for React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
+      retry: 1,
+    },
+  },
+});
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -41,18 +53,20 @@ export default function App() {
   }
 
   return (
-    <Router>
-      <div className="bg-gray-100 min-h-screen">
-        {/* Navigation Bar */}
-        <Navbar user={user} onLogout={handleLogout} />
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <div className="bg-gray-100 min-h-screen">
+          {/* Navigation Bar */}
+          <Navbar user={user} onLogout={handleLogout} />
 
-        {/* Routes */}
-        <Routes>
-          <Route path="/" element={<Billing />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Routes>
-      </div>
-    </Router>
+          {/* Routes */}
+          <Routes>
+            <Route path="/" element={<Billing />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+          </Routes>
+        </div>
+      </Router>
+    </QueryClientProvider>
   );
 }

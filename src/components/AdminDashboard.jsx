@@ -1,58 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "./Card";
 import { Input } from "./Input";
 import { Button } from "./Button";
 import { toast } from "react-toastify";
-import api from "../services/api";
+import { useBills } from "../hooks/useBills";
 
 export default function AdminDashboard() {
-  const [bills, setBills] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [totalAmount, setTotalAmount] = useState(0);
 
-  // Set default to today's date
-  useEffect(() => {
+  // Initialize dates with today's date
+  if (!startDate || !endDate) {
     const today = new Date().toISOString().split("T")[0];
-    setStartDate(today);
-    setEndDate(today);
-    fetchBills(today, today);
-  }, []);
+    if (!startDate) setStartDate(today);
+    if (!endDate) setEndDate(today);
+  }
 
-  const fetchBills = async (start, end) => {
-    setLoading(true);
-    try {
-      // Convert dates to timestamps for the entire day
-      const startTimestamp = new Date(`${start}T00:00:00`).toISOString();
-      const endTimestamp = new Date(`${end}T23:59:59`).toISOString();
+  // Fetch bills using custom hook
+  const {
+    data: response,
+    isLoading,
+    refetch,
+  } = useBills({
+    startDate,
+    endDate,
+    enabled: !!startDate && !!endDate,
+  });
 
-      const response = await api.get("/bills", {
-        params: {
-          startDate: startTimestamp,
-          endDate: endTimestamp,
-        },
-      });
-
-      const billsData = response.data.bills || [];
-      setBills(billsData);
-
-      // Calculate total
-      const total = billsData.reduce((sum, bill) => sum + bill.total, 0);
-      setTotalAmount(total);
-
-      if (billsData.length === 0) {
-        toast.info("No bills found for the selected dates");
-      }
-    } catch (error) {
-      console.error("Error fetching bills:", error);
-      toast.error("Failed to fetch bills");
-      setBills([]);
-      setTotalAmount(0);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const bills = response?.bills || [];
+  const totalAmount = bills.reduce((sum, bill) => sum + bill.total, 0);
 
   const handleFilter = () => {
     if (!startDate || !endDate) {
@@ -65,14 +41,15 @@ export default function AdminDashboard() {
       return;
     }
 
-    fetchBills(startDate, endDate);
+    // Refetch with new dates (useQuery will automatically update via queryKey)
+    refetch();
   };
 
   const handleToday = () => {
     const today = new Date().toISOString().split("T")[0];
     setStartDate(today);
     setEndDate(today);
-    fetchBills(today, today);
+    // useQuery will automatically refetch due to queryKey change
   };
 
   const handleThisMonth = () => {
@@ -85,7 +62,7 @@ export default function AdminDashboard() {
 
     setStartDate(start);
     setEndDate(end);
-    fetchBills(start, end);
+    // useQuery will automatically refetch due to queryKey change
   };
 
   const exportToCSV = () => {
@@ -124,7 +101,9 @@ export default function AdminDashboard() {
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
       <Card className="w-full max-w-6xl bg-white shadow-lg rounded-2xl p-6">
         {/* Header */}
-        <h2 className="text-2xl font-bold text-center mb-6">📊 Bills Dashboard</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">
+          📊 Bills Dashboard
+        </h2>
 
         {/* Filter Section */}
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
@@ -206,20 +185,21 @@ export default function AdminDashboard() {
           <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-600">
             <p className="text-sm text-gray-600">Average Bill</p>
             <p className="text-3xl font-bold text-orange-600">
-              ₹{bills.length > 0 ? (totalAmount / bills.length).toFixed(2) : "0"}
+              ₹
+              {bills.length > 0 ? (totalAmount / bills.length).toFixed(2) : "0"}
             </p>
           </div>
         </div>
 
         {/* Loading State */}
-        {loading && (
+        {isLoading && (
           <div className="text-center py-8">
             <p className="text-lg text-gray-600">⏳ Loading bills...</p>
           </div>
         )}
 
         {/* Bills Table */}
-        {!loading && bills.length > 0 && (
+        {!isLoading && bills.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -280,7 +260,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Empty State */}
-        {!loading && bills.length === 0 && (
+        {!isLoading && bills.length === 0 && (
           <div className="text-center py-12">
             <p className="text-lg text-gray-600">📭 No bills found</p>
             <p className="text-sm text-gray-500 mt-2">

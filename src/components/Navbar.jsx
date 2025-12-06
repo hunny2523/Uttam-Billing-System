@@ -24,20 +24,20 @@ export default function Navbar({ user, onLogout }) {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex gap-6 items-center">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="hover:bg-green-500 px-3 py-2 rounded transition"
           >
             Billing
           </Link>
-          <Link 
-            to="/search" 
+          <Link
+            to="/search"
             className="hover:bg-green-500 px-3 py-2 rounded transition"
           >
             Search Bills
           </Link>
-          <Link 
-            to="/admin" 
+          <Link
+            to="/admin"
             className="hover:bg-green-500 px-3 py-2 rounded transition"
           >
             Dashboard
