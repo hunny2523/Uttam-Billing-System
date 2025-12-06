@@ -4,10 +4,12 @@ import { Input } from "./Input";
 import { Button } from "./Button";
 import { toast } from "react-toastify";
 import { useBills } from "../hooks/useBills";
+import BillDetailsModal from "./BillDetailsModal";
 
 export default function AdminDashboard() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedBill, setSelectedBill] = useState(null);
 
   // Initialize dates with today's date
   if (!startDate || !endDate) {
@@ -225,7 +227,10 @@ export default function AdminDashboard() {
                       index % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:bg-blue-50 transition`}
                   >
-                    <td className="px-4 py-3 font-semibold text-gray-900">
+                    <td 
+                      className="px-4 py-3 font-semibold text-blue-600 cursor-pointer hover:underline"
+                      onClick={() => setSelectedBill(bill)}
+                    >
                       #{bill.billNumber}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
@@ -262,6 +267,14 @@ export default function AdminDashboard() {
           </div>
         )}
       </Card>
+
+      {/* Bill Details Modal */}
+      {selectedBill && (
+        <BillDetailsModal
+          bill={selectedBill}
+          onClose={() => setSelectedBill(null)}
+        />
+      )}
     </div>
   );
 }
