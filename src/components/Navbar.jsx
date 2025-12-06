@@ -36,6 +36,12 @@ export default function Navbar({ user, onLogout }) {
           >
             Search Bills
           </Link>
+          <Link 
+            to="/admin" 
+            className="hover:bg-green-500 px-3 py-2 rounded transition"
+          >
+            Dashboard
+          </Link>
         </div>
 
         {/* Desktop User Info & Logout */}
@@ -88,6 +94,13 @@ export default function Navbar({ user, onLogout }) {
               className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
             >
               🔍 Search Bills
+            </Link>
+            <Link
+              to="/admin"
+              onClick={closeMenu}
+              className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
+            >
+              📊 Dashboard
             </Link>
 
             {/* Divider */}

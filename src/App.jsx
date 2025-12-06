@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Auth from "./pages/Auth";
 import Billing from "./components/Billing";
 import Navbar from "./components/Navbar";
+import AdminDashboard from "./components/AdminDashboard";
 import "./App.css";
 import {
   getCurrentUser,
@@ -49,6 +50,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Billing />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </div>
     </Router>
