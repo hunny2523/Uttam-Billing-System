@@ -25,6 +25,13 @@ export default function Billing() {
   // Custom hook for creating bills
   const { mutate: createBillMutation, isPending: isLoading } = useCreateBill();
 
+  // Auto-populate price when item is selected (if item has default price)
+  useEffect(() => {
+    if (selectedItem?.price) {
+      setPrice(selectedItem.price.toString());
+    }
+  }, [selectedItem]);
+
   const validateItemInputs = () => {
     const newErrors = {};
     if (!price || parseFloat(price) <= 0)
