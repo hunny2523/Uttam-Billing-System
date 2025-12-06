@@ -171,7 +171,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Summary Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600">
             <p className="text-sm text-gray-600">Total Bills</p>
             <p className="text-3xl font-bold text-blue-600">{bills.length}</p>
@@ -180,13 +180,6 @@ export default function AdminDashboard() {
             <p className="text-sm text-gray-600">Total Amount</p>
             <p className="text-3xl font-bold text-green-600">
               ₹{totalAmount.toFixed(2)}
-            </p>
-          </div>
-          <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-600">
-            <p className="text-sm text-gray-600">Average Bill</p>
-            <p className="text-3xl font-bold text-orange-600">
-              ₹
-              {bills.length > 0 ? (totalAmount / bills.length).toFixed(2) : "0"}
             </p>
           </div>
         </div>
