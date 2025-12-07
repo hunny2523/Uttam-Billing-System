@@ -3,7 +3,8 @@ import CreatableSelect from "react-select/creatable";
 import { useItems } from "../hooks/useItems";
 
 const Search = ({ selectedItem, setSelectedItem }) => {
-  const { data, isLoading, error } = useItems();
+  // Only fetch active items for billing (includeInactive = false)
+  const { data, isLoading, error } = useItems(false);
   const [itemsList, setItemsList] = useState([]);
 
   // Update items list when data is fetched

@@ -27,7 +27,7 @@ export default function ItemsManagement() {
 
   const queryClient = useQueryClient();
 
-  // Fetch all items (including inactive for admin)
+  // Fetch all items (including inactive for admin management)
   const { data, isLoading, error } = useQuery({
     queryKey: ["items", "all"],
     queryFn: () => getItems(true), // includeInactive = true for admin
