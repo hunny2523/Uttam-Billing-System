@@ -48,6 +48,12 @@ export default function Navbar({ user, onLogout }) {
               >
                 Dashboard
               </Link>
+              <Link
+                to="/items"
+                className="hover:bg-green-500 px-3 py-2 rounded transition"
+              >
+                Items
+              </Link>
             </>
           )}
         </div>
@@ -113,6 +119,13 @@ export default function Navbar({ user, onLogout }) {
                   className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
                 >
                   📊 Dashboard
+                </Link>
+                <Link
+                  to="/items"
+                  onClick={closeMenu}
+                  className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
+                >
+                  📦 Items
                 </Link>
               </>
             )}

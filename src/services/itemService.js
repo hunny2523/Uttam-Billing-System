@@ -1,8 +1,9 @@
 import api from './api';
 
-// Fetch all items
-export const getItems = async () => {
-    const response = await api.get('/items');
+// Fetch all items (with optional includeInactive for admin)
+export const getItems = async (includeInactive = false) => {
+    const params = includeInactive ? { includeInactive: 'true' } : {};
+    const response = await api.get('/items', { params });
     return response.data;
 };
 

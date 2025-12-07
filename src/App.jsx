@@ -5,6 +5,7 @@ import Billing from "./components/Billing";
 import Navbar from "./components/Navbar";
 import AdminDashboard from "./components/AdminDashboard";
 import SearchPage from "./components/SearchPage";
+import ItemsManagement from "./components/ItemsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import {
@@ -93,6 +94,16 @@ export default function App() {
               element={
                 <ProtectedRoute allowedRoles={["ADMIN"]}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Items Management - Admin only */}
+            <Route
+              path="/items"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN"]}>
+                  <ItemsManagement />
                 </ProtectedRoute>
               }
             />
