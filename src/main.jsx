@@ -5,33 +5,39 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Register Service Worker for PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then((registration) => {
-      console.log('Service Worker registered:', registration);
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((registration) => {
+        console.log("Service Worker registered:", registration);
 
-      // Check for updates periodically
-      setInterval(() => {
-        registration.update();
-      }, 60000); // Check every minute
+        // Check for updates periodically
+        setInterval(() => {
+          registration.update();
+        }, 60000); // Check every minute
 
-      // Listen for updates
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New service worker available
-            toast.info('App update available! Please refresh.', {
-              position: 'top-right',
-              autoClose: false,
-              closeButton: true,
-            });
-          }
+        // Listen for updates
+        registration.addEventListener("updatefound", () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener("statechange", () => {
+            if (
+              newWorker.state === "installed" &&
+              navigator.serviceWorker.controller
+            ) {
+              // New service worker available
+              toast.info("App update available! Please refresh.", {
+                position: "top-right",
+                autoClose: false,
+                closeButton: true,
+              });
+            }
+          });
         });
+      })
+      .catch((error) => {
+        console.log("Service Worker registration failed:", error);
       });
-    }).catch((error) => {
-      console.log('Service Worker registration failed:', error);
-    });
   });
 }
 

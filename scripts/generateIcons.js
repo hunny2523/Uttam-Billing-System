@@ -14,41 +14,41 @@ const svgIcon = `
 `;
 
 async function generateIcons() {
-  try {
-    console.log('Generating PWA icons...');
+    try {
+        console.log('Generating PWA icons...');
 
-    // 192x192 icon
-    await sharp(Buffer.from(svgIcon))
-      .resize(192, 192)
-      .png()
-      .toFile(path.join(publicDir, 'icon-192.png'));
-    console.log('✓ Created icon-192.png');
+        // 192x192 icon
+        await sharp(Buffer.from(svgIcon))
+            .resize(192, 192)
+            .png()
+            .toFile(path.join(publicDir, 'icon-192.png'));
+        console.log('✓ Created icon-192.png');
 
-    // 512x512 icon
-    await sharp(Buffer.from(svgIcon))
-      .resize(512, 512)
-      .png()
-      .toFile(path.join(publicDir, 'icon-512.png'));
-    console.log('✓ Created icon-512.png');
+        // 512x512 icon
+        await sharp(Buffer.from(svgIcon))
+            .resize(512, 512)
+            .png()
+            .toFile(path.join(publicDir, 'icon-512.png'));
+        console.log('✓ Created icon-512.png');
 
-    // Maskable icons (same for now)
-    await sharp(Buffer.from(svgIcon))
-      .resize(192, 192)
-      .png()
-      .toFile(path.join(publicDir, 'icon-192-maskable.png'));
-    console.log('✓ Created icon-192-maskable.png');
+        // Maskable icons (same for now)
+        await sharp(Buffer.from(svgIcon))
+            .resize(192, 192)
+            .png()
+            .toFile(path.join(publicDir, 'icon-192-maskable.png'));
+        console.log('✓ Created icon-192-maskable.png');
 
-    await sharp(Buffer.from(svgIcon))
-      .resize(512, 512)
-      .png()
-      .toFile(path.join(publicDir, 'icon-512-maskable.png'));
-    console.log('✓ Created icon-512-maskable.png');
+        await sharp(Buffer.from(svgIcon))
+            .resize(512, 512)
+            .png()
+            .toFile(path.join(publicDir, 'icon-512-maskable.png'));
+        console.log('✓ Created icon-512-maskable.png');
 
-    console.log('\nAll icons generated successfully!');
-  } catch (error) {
-    console.error('Error generating icons:', error);
-    process.exit(1);
-  }
+        console.log('\nAll icons generated successfully!');
+    } catch (error) {
+        console.error('Error generating icons:', error);
+        process.exit(1);
+    }
 }
 
 generateIcons();

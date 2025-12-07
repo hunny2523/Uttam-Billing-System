@@ -5,6 +5,7 @@
 To deploy the PWA properly, ensure:
 
 ### 1. HTTPS Required ⚠️
+
 - PWA **requires HTTPS** to function
 - Service workers only work on secure connections
 - Ensure your deployment supports HTTPS
@@ -92,14 +93,17 @@ Track PWA health:
 ### 10. Common Issues & Fixes
 
 **Issue**: App not installable
+
 - Solution: Check HTTPS is enabled
 - Solution: Verify manifest.json is accessible
 
 **Issue**: Offline doesn't work
+
 - Solution: Ensure site was loaded once online
 - Solution: Check Service Worker is registered
 
 **Issue**: Stale content showing
+
 - Solution: Hard-refresh (Cmd/Ctrl + Shift + R)
 - Solution: Clear app cache from settings
 
@@ -119,6 +123,7 @@ Track PWA health:
 ## Production URLs
 
 After deployment, the app will be installable at:
+
 - **Android**: https://your-domain.com
 - **iOS**: https://your-domain.com
 

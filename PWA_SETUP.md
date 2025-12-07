@@ -8,7 +8,7 @@ The Billing App is now a Progressive Web App (PWA) that can be installed on phon
 ✅ **Offline Support** - Works without internet connection  
 ✅ **App-like Experience** - Runs in standalone mode (no browser UI)  
 ✅ **Auto Updates** - Automatically checks for updates  
-✅ **Fast Loading** - Cached assets load instantly  
+✅ **Fast Loading** - Cached assets load instantly
 
 ## Installation Instructions
 
@@ -74,11 +74,13 @@ The Billing App is now a Progressive Web App (PWA) that can be installed on phon
 ## Development
 
 To regenerate icons:
+
 ```bash
 npm run generate-icons
 ```
 
 To test PWA locally:
+
 ```bash
 npm run build
 npm run preview
