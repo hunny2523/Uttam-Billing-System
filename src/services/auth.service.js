@@ -42,6 +42,18 @@ export const getToken = () => {
     return localStorage.getItem('token');
 };
 
+// Check if user is admin
+export const isAdmin = () => {
+    const user = getCurrentUser();
+    return user?.role === 'ADMIN';
+};
+
+// Check if user is staff
+export const isStaff = () => {
+    const user = getCurrentUser();
+    return user?.role === 'STAFF';
+};
+
 // Verify token with backend
 export const verifyToken = async () => {
     try {

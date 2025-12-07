@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { isAdmin } from "../services/auth.service";
 import CloseIcon from "../icons/CloseIcon";
 
 export default function Navbar({ user, onLogout }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const userIsAdmin = isAdmin();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -30,24 +32,30 @@ export default function Navbar({ user, onLogout }) {
           >
             Billing
           </Link>
-          <Link
-            to="/search"
-            className="hover:bg-green-500 px-3 py-2 rounded transition"
-          >
-            Search Bills
-          </Link>
-          <Link
-            to="/admin"
-            className="hover:bg-green-500 px-3 py-2 rounded transition"
-          >
-            Dashboard
-          </Link>
+
+          {/* Admin-only links */}
+          {userIsAdmin && (
+            <>
+              <Link
+                to="/search"
+                className="hover:bg-green-500 px-3 py-2 rounded transition"
+              >
+                Search Bills
+              </Link>
+              <Link
+                to="/admin"
+                className="hover:bg-green-500 px-3 py-2 rounded transition"
+              >
+                Dashboard
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Desktop User Info & Logout */}
         <div className="hidden md:flex items-center gap-4">
           <span className="text-sm bg-green-500 px-3 py-1 rounded-full">
-            {user?.email}
+            {user?.email} ({user?.role})
           </span>
           <button
             onClick={onLogout}
@@ -88,20 +96,26 @@ export default function Navbar({ user, onLogout }) {
             >
               📄 Billing
             </Link>
-            <Link
-              to="/search"
-              onClick={closeMenu}
-              className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
-            >
-              🔍 Search Bills
-            </Link>
-            <Link
-              to="/admin"
-              onClick={closeMenu}
-              className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
-            >
-              📊 Dashboard
-            </Link>
+
+            {/* Admin-only links */}
+            {userIsAdmin && (
+              <>
+                <Link
+                  to="/search"
+                  onClick={closeMenu}
+                  className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
+                >
+                  🔍 Search Bills
+                </Link>
+                <Link
+                  to="/admin"
+                  onClick={closeMenu}
+                  className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
+                >
+                  📊 Dashboard
+                </Link>
+              </>
+            )}
 
             {/* Divider */}
             <div className="border-t border-green-500 my-2"></div>
@@ -110,6 +124,7 @@ export default function Navbar({ user, onLogout }) {
             <div className="px-4 py-2">
               <p className="text-xs text-green-100 mb-2">Logged in as:</p>
               <p className="text-sm font-semibold truncate">{user?.email}</p>
+              <p className="text-xs text-green-200 mt-1">Role: {user?.role}</p>
             </div>
 
             {/* Logout Button */}

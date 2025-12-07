@@ -4,14 +4,20 @@ import Auth from "./pages/Auth";
 import Billing from "./components/Billing";
 import Navbar from "./components/Navbar";
 import AdminDashboard from "./components/AdminDashboard";
+import SearchPage from "./components/SearchPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import {
   getCurrentUser,
   isAuthenticated,
   logout,
 } from "./services/auth.service";
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import SearchPage from "./components/SearchPage";
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import { toast } from "react-toastify";
 
 // Create a client for React Query
@@ -59,11 +65,40 @@ export default function App() {
           {/* Navigation Bar */}
           <Navbar user={user} onLogout={handleLogout} />
 
-          {/* Routes */}
+          {/* Routes with Role-Based Access Control */}
           <Routes>
-            <Route path="/" element={<Billing />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+            {/* Billing Page - Staff & Admin can access */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN", "STAFF"]}>
+                  <Billing />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Search Page - Admin only */}
+            <Route
+              path="/search"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN"]}>
+                  <SearchPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Dashboard - Admin only */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN"]}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch all - redirect to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
       </Router>

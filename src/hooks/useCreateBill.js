@@ -19,16 +19,16 @@ export const useCreateBill = () => {
         },
         onSuccess: (data) => {
             console.log(data)
-            
+
             // Revalidate bills data in dashboard
             // Invalidates both infinite scroll and export queries
-            queryClient.invalidateQueries({ 
+            queryClient.invalidateQueries({
                 queryKey: ["bills-infinite"]
             });
-            queryClient.invalidateQueries({ 
+            queryClient.invalidateQueries({
                 queryKey: ["bills-export"]
             });
-            
+
             // Check WhatsApp status and show appropriate message
             if (data?.whatsapp) {
                 if (data.whatsapp.success) {
