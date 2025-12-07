@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "./Card";
 import { Input } from "./Input";
 import { Button } from "./Button";
 import { toast } from "react-toastify";
-import { useBills } from "../hooks/useBills";
+import { useInfiniteBills } from "../hooks/useInfiniteBills";
+import { useQuery } from "@tanstack/react-query";
+import api from "../services/api";
 import BillDetailsModal from "./BillDetailsModal";
 
 export default function AdminDashboard() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedBill, setSelectedBill] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Initialize dates with today's date
   if (!startDate || !endDate) {
@@ -18,18 +21,22 @@ export default function AdminDashboard() {
     if (!endDate) setEndDate(today);
   }
 
-  // Fetch bills using custom hook
-  const {
-    data: response,
-    isLoading,
-    refetch,
-  } = useBills({
-    startDate,
-    endDate,
-    enabled: !!startDate && !!endDate,
-  });
+  // Fetch bills with infinite scroll (limit: 10 per page)
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteBills({
+      startDate,
+      endDate,
+      limit: 10,
+      enabled: !!startDate && !!endDate,
+    });
 
-  const bills = response?.bills || [];
+  // Flatten all pages into single bills array
+  const bills = useMemo(() => {
+    return data?.pages?.flatMap((page) => page.bills) || [];
+  }, [data]);
+
+  // Get total count from first page
+  const totalCount = data?.pages?.[0]?.pagination?.totalCount || 0;
   const totalAmount = bills.reduce((sum, bill) => sum + bill.total, 0);
 
   const handleFilter = () => {
@@ -43,8 +50,7 @@ export default function AdminDashboard() {
       return;
     }
 
-    // Refetch with new dates (useQuery will automatically update via queryKey)
-    refetch();
+    // useInfiniteQuery will automatically refetch due to queryKey change
   };
 
   const handleToday = () => {
@@ -72,38 +78,70 @@ export default function AdminDashboard() {
 
     setStartDate(start);
     setEndDate(end);
-    // useQuery will automatically refetch due to queryKey change
+    // useInfiniteQuery will automatically refetch due to queryKey change
   };
-  const exportToCSV = () => {
-    if (bills.length === 0) {
-      toast.error("No bills to export");
+
+  // Export function - fetches ALL bills for the date range
+  const exportToCSV = async () => {
+    if (!startDate || !endDate) {
+      toast.error("Please select date range first");
       return;
     }
 
-    const headers = ["Bill No", "Customer Name", "Phone", "Total", "Date"];
-    const rows = bills.map((bill) => [
-      bill.billNumber,
-      bill.customerName || "N/A",
-      bill.phoneNumber || "N/A",
-      bill.total.toFixed(2),
-      new Date(bill.timestamp).toLocaleString("en-IN", {
-        timeZone: "Asia/Kolkata",
-      }),
-    ]);
+    setIsExporting(true);
 
-    const csvContent = [
-      headers.join(","),
-      ...rows.map((row) => row.join(",")),
-    ].join("\n");
+    try {
+      // Fetch all bills for export (limit: 0 means get all bills)
+      const params = {
+        limit: 0, // 0 = fetch all bills without pagination
+      };
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `bills-${startDate}-to-${endDate}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    toast.success("Bills exported successfully");
+      if (startDate) {
+        params.startDate = new Date(`${startDate}T00:00:00`).toISOString();
+      }
+      if (endDate) {
+        params.endDate = new Date(`${endDate}T23:59:59`).toISOString();
+      }
+
+      const response = await api.get("/bills", { params });
+      const allBills = response.data.bills || [];
+
+      if (allBills.length === 0) {
+        toast.error("No bills to export");
+        setIsExporting(false);
+        return;
+      }
+
+      const headers = ["Bill No", "Customer Name", "Phone", "Total", "Date"];
+      const rows = allBills.map((bill) => [
+        bill.billNumber,
+        bill.customerName || "N/A",
+        bill.phoneNumber || "N/A",
+        bill.total.toFixed(2),
+        new Date(bill.timestamp).toLocaleString("en-IN", {
+          timeZone: "Asia/Kolkata",
+        }),
+      ]);
+
+      const csvContent = [
+        headers.join(","),
+        ...rows.map((row) => row.join(",")),
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `bills-${startDate}-to-${endDate}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      toast.success(`${allBills.length} bills exported successfully`);
+    } catch (error) {
+      console.error("Export error:", error);
+      toast.error("Failed to export bills");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -155,9 +193,10 @@ export default function AdminDashboard() {
             <div className="flex items-end">
               <Button
                 onClick={exportToCSV}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2"
+                disabled={isExporting}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 disabled:bg-gray-400"
               >
-                📥 Export CSV
+                {isExporting ? "⏳ Exporting..." : "📥 Export CSV"}
               </Button>
             </div>
           </div>
@@ -183,10 +222,10 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-600">
             <p className="text-sm text-gray-600">Total Bills</p>
-            <p className="text-3xl font-bold text-blue-600">{bills.length}</p>
+            <p className="text-3xl font-bold text-blue-600">{totalCount}</p>
           </div>
           <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-600">
-            <p className="text-sm text-gray-600">Total Amount</p>
+            <p className="text-sm text-gray-600">Total Amount (Loaded)</p>
             <p className="text-3xl font-bold text-green-600">
               ₹{totalAmount.toFixed(2)}
             </p>
@@ -261,6 +300,28 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Show More Button */}
+        {!isLoading && hasNextPage && (
+          <div className="flex justify-center mt-6">
+            <Button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 disabled:bg-gray-400"
+            >
+              {isFetchingNextPage ? "⏳ Loading..." : "📄 Show More"}
+            </Button>
+          </div>
+        )}
+
+        {/* All Loaded Message */}
+        {!isLoading && !hasNextPage && bills.length > 0 && (
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-500">
+              ✅ All {totalCount} bills loaded
+            </p>
           </div>
         )}
 
