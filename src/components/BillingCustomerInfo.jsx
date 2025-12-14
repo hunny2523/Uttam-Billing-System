@@ -12,17 +12,18 @@ export default function BillingCustomerInfo({
 }) {
   const [phoneSearch, setPhoneSearch] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  
+
   // Fetch customers based on phone search
   const { data: customersData } = useCustomers(phoneSearch);
 
   // Transform customers for select dropdown
-  const customerOptions = customersData?.customers?.map(customer => ({
-    value: customer.phone,
-    label: `${customer.phone}${customer.name ? ` - ${customer.name}` : ''}`,
-    phone: customer.phone,
-    name: customer.name,
-  })) || [];
+  const customerOptions =
+    customersData?.customers?.map((customer) => ({
+      value: customer.phone,
+      label: `${customer.phone}${customer.name ? ` - ${customer.name}` : ""}`,
+      phone: customer.phone,
+      name: customer.name,
+    })) || [];
 
   // Handle customer selection
   const handleCustomerChange = (selected) => {
@@ -66,7 +67,9 @@ export default function BillingCustomerInfo({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col">
-        <label className="text-sm text-gray-600 mb-1">Phone Number (Optional - for WhatsApp)</label>
+        <label className="text-sm text-gray-600 mb-1">
+          Phone Number (Optional - for WhatsApp)
+        </label>
         <CreatableSelect
           value={selectedCustomer}
           options={customerOptions}
