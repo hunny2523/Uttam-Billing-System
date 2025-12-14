@@ -28,6 +28,10 @@ export const useCreateBill = () => {
             queryClient.invalidateQueries({
                 queryKey: ["bills-export"]
             });
+            // Revalidate customers data for phone autocomplete
+            queryClient.invalidateQueries({
+                queryKey: ["customers"]
+            });
 
             // Check WhatsApp status and show appropriate message
             if (data?.whatsapp) {
