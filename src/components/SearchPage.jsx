@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 export default function SearchPage() {
   const [billNumber, setBillNumber] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [searchParams, setSearchParams] = useState(null);
 
   const {
@@ -31,6 +32,10 @@ export default function SearchPage() {
       setSearchParams({
         billNumber: parseInt(billNumber.trim(), 10),
       });
+    } else if (phoneNumber.trim()) {
+      setSearchParams({
+        phoneNumber: phoneNumber.trim(),
+      });
     } else if (selectedDate) {
       const selected = new Date(selectedDate);
       const start = new Date(selected.setHours(0, 0, 0, 0));
@@ -41,7 +46,7 @@ export default function SearchPage() {
         endDate: end.toISOString(),
       });
     } else {
-      toast.error("Please enter a bill number or select a date");
+      toast.error("Please enter a bill number, phone number, or select a date");
     }
   };
 
@@ -57,6 +62,17 @@ export default function SearchPage() {
           onChange={(e) => setBillNumber(e.target.value)}
           className="w-full border p-2 rounded"
           placeholder="Enter bill number"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-1 font-medium">Phone Number</label>
+        <input
+          type="text"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+          className="w-full border p-2 rounded"
+          placeholder="Enter phone number"
         />
       </div>
 
