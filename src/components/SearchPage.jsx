@@ -28,25 +28,33 @@ export default function SearchPage() {
   const results = response?.bills || [];
 
   const handleSearch = () => {
+    const params = {};
+    let hasFilter = false;
+
+    // Build params object with all provided filters
     if (billNumber.trim()) {
-      setSearchParams({
-        billNumber: parseInt(billNumber.trim(), 10),
-      });
-    } else if (phoneNumber.trim()) {
-      setSearchParams({
-        phoneNumber: phoneNumber.trim(),
-      });
-    } else if (selectedDate) {
+      params.billNumber = parseInt(billNumber.trim(), 10);
+      hasFilter = true;
+    }
+
+    if (phoneNumber.trim()) {
+      params.phoneNumber = phoneNumber.trim();
+      hasFilter = true;
+    }
+
+    if (selectedDate) {
       const selected = new Date(selectedDate);
       const start = new Date(selected.setHours(0, 0, 0, 0));
       const end = new Date(selected.setHours(23, 59, 59, 999));
+      params.startDate = start.toISOString();
+      params.endDate = end.toISOString();
+      hasFilter = true;
+    }
 
-      setSearchParams({
-        startDate: start.toISOString(),
-        endDate: end.toISOString(),
-      });
+    if (hasFilter) {
+      setSearchParams(params);
     } else {
-      toast.error("Please enter a bill number, phone number, or select a date");
+      toast.error("Please enter at least one search criteria");
     }
   };
 
