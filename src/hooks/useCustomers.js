@@ -1,8 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '../services/api';
 import { useState, useEffect } from 'react';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 export const useCustomers = (phone) => {
     const [debouncedPhone, setDebouncedPhone] = useState(phone);
@@ -19,12 +17,8 @@ export const useCustomers = (phone) => {
     return useQuery({
         queryKey: ['customers', debouncedPhone],
         queryFn: async () => {
-            const token = localStorage.getItem('token');
-            const { data } = await axios.get(`${API_URL}/customers/search`, {
-                params: { phone: debouncedPhone },
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+            const { data } = await api.get('/customers/search', {
+                params: { phone: debouncedPhone }
             });
             return data;
         },
