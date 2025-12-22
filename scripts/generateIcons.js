@@ -4,42 +4,57 @@ import path from 'path';
 
 const publicDir = './public';
 
-// SVG logo
-const svgIcon = `
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" fill="#1f2937"/>
-  <circle cx="256" cy="256" r="200" fill="#3b82f6"/>
-  <text x="256" y="300" font-size="120" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">₹</text>
-</svg>
-`;
+// Path to your source image - CHANGE THIS TO YOUR IMAGE PATH
+const sourceImage = './public/logo.png'; // Put your image here as logo.png
 
 async function generateIcons() {
     try {
-        console.log('Generating PWA icons...');
+        console.log('Generating PWA icons from:', sourceImage);
+
+        // Check if source image exists
+        if (!fs.existsSync(sourceImage)) {
+            console.error('❌ Source image not found:', sourceImage);
+            console.log('Please place your icon image at:', sourceImage);
+            process.exit(1);
+        }
 
         // 192x192 icon
-        await sharp(Buffer.from(svgIcon))
-            .resize(192, 192)
+        await sharp(sourceImage)
+            .resize(192, 192, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
             .png()
             .toFile(path.join(publicDir, 'icon-192.png'));
         console.log('✓ Created icon-192.png');
 
         // 512x512 icon
-        await sharp(Buffer.from(svgIcon))
-            .resize(512, 512)
+        await sharp(sourceImage)
+            .resize(512, 512, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
             .png()
             .toFile(path.join(publicDir, 'icon-512.png'));
         console.log('✓ Created icon-512.png');
 
-        // Maskable icons (same for now)
-        await sharp(Buffer.from(svgIcon))
-            .resize(192, 192)
+        // Maskable icons (with padding for safe zone)
+        await sharp(sourceImage)
+            .resize(154, 154, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
+            .extend({
+                top: 19,
+                bottom: 19,
+                left: 19,
+                right: 19,
+                background: { r: 255, g: 255, b: 255, alpha: 1 }
+            })
             .png()
             .toFile(path.join(publicDir, 'icon-192-maskable.png'));
         console.log('✓ Created icon-192-maskable.png');
 
-        await sharp(Buffer.from(svgIcon))
-            .resize(512, 512)
+        await sharp(sourceImage)
+            .resize(410, 410, { fit: 'contain', background: { r: 255, g: 255, b: 255, alpha: 0 } })
+            .extend({
+                top: 51,
+                bottom: 51,
+                left: 51,
+                right: 51,
+                background: { r: 255, g: 255, b: 255, alpha: 1 }
+            })
             .png()
             .toFile(path.join(publicDir, 'icon-512-maskable.png'));
         console.log('✓ Created icon-512-maskable.png');

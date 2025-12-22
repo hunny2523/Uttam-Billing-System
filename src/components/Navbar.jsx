@@ -22,7 +22,9 @@ export default function Navbar({ user, onLogout }) {
       <div className="flex justify-between items-center px-4 py-3">
         {/* Logo/Brand */}
         <div className="flex items-center gap-2">
-          <span className="text-xl font-bold">🛒 {BUSINESS_CONFIG.fullName}</span>
+          <span className="text-xl font-bold">
+            🛒 {BUSINESS_CONFIG.fullName}
+          </span>
         </div>
 
         {/* Desktop Navigation */}
@@ -54,6 +56,12 @@ export default function Navbar({ user, onLogout }) {
                 className="hover:bg-green-500 px-3 py-2 rounded transition"
               >
                 Items
+              </Link>
+              <Link
+                to="/password"
+                className="hover:bg-green-500 px-3 py-2 rounded transition"
+              >
+                Password
               </Link>
             </>
           )}
@@ -127,6 +135,13 @@ export default function Navbar({ user, onLogout }) {
                   className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
                 >
                   📦 Items
+                </Link>
+                <Link
+                  to="/password"
+                  onClick={closeMenu}
+                  className="w-full text-left px-4 py-3 hover:bg-green-500 rounded transition"
+                >
+                  🔒 Password
                 </Link>
               </>
             )}
