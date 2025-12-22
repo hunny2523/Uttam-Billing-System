@@ -1,3 +1,5 @@
+import { BUSINESS_CONFIG } from '../config/business';
+
 /**
  * Utility function to generate printer commands for thermal printer
  * @param {Object} config - Configuration object
@@ -18,13 +20,12 @@ export const generatePrinterData = ({
     let data = "\x1B\x40"; // Initialize printer
     data += "\x1B\x61\x01"; // Center align
     data += "\x1B\x21\x10"; // Bold, double-size
-    data += "Uttam Masala\n\n";
+    data += `${BUSINESS_CONFIG.name}\n\n`;
 
     // Address and phone number
     data += "\x1B\x21\x01"; // Small bold text
-    data += "Ahmedabad-Kalol Highway\n";
-    data += "Shertha, Gandhinagar-382423\n";
-    data += "M-98980 70258\n";
+    data += `${BUSINESS_CONFIG.address}\n`;
+    data += `${BUSINESS_CONFIG.phone}\n`;
 
     data += "------------------------------\n";
     data += "\x1B\x21\x08"; // Slightly larger bold text

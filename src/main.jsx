@@ -3,6 +3,10 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { BUSINESS_CONFIG } from "./config/business.js";
+
+// Update document title dynamically
+document.title = `${BUSINESS_CONFIG.fullName} - Billing System`;
 
 // Register Service Worker for PWA
 if ("serviceWorker" in navigator) {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { login, logout } from "../services/auth.service";
 import { toast } from "react-toastify";
+import { BUSINESS_CONFIG } from "../config/business";
 
 export default function Auth({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -40,7 +41,7 @@ export default function Auth({ onLogin }) {
 
   return (
     <div className="p-4 bg-white shadow-lg rounded-lg max-w-sm mx-auto mt-20">
-      <h2 className="text-lg font-bold mb-2">Uttam Masala Billing System</h2>
+      <h2 className="text-lg font-bold mb-2">{BUSINESS_CONFIG.fullName} Billing System</h2>
       <h3 className="text-md mb-4 text-gray-600">Login</h3>
       <input
         type="email"

@@ -38,9 +38,9 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: 'Uttam Masala Billing System',
-        short_name: 'Billing App',
-        description: 'Efficient billing and item management application for Uttam Masala',
+        name: 'CP Spices Billing System',
+        short_name: 'CP Spices',
+        description: 'Efficient billing and item management application for CP Spices',
         theme_color: '#1f2937',
         background_color: '#ffffff',
         display: 'standalone',

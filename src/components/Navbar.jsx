@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { isAdmin } from "../services/auth.service";
 import CloseIcon from "../icons/CloseIcon";
+import { BUSINESS_CONFIG } from "../config/business";
 
 export default function Navbar({ user, onLogout }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,7 +22,7 @@ export default function Navbar({ user, onLogout }) {
       <div className="flex justify-between items-center px-4 py-3">
         {/* Logo/Brand */}
         <div className="flex items-center gap-2">
-          <span className="text-xl font-bold">🛒 Uttam Masala</span>
+          <span className="text-xl font-bold">🛒 {BUSINESS_CONFIG.fullName}</span>
         </div>
 
         {/* Desktop Navigation */}
