@@ -2,7 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import { Card } from "./Card";
 import { toast } from "react-toastify";
 import { useCreateBill } from "../hooks/useCreateBill";
-import { generatePrinterData, printWithRawBT } from "../utils/printer";
+import {
+  generatePrinterData,
+  printWithRawBT,
+  generatePOSPrinterData,
+  printWithPOSPrinter,
+} from "../utils/printer";
 import BillingItemInput from "./BillingItemInput";
 import BillingItemsList from "./BillingItemsList";
 import BillingCustomerInfo from "./BillingCustomerInfo";
@@ -18,6 +23,7 @@ export default function Billing() {
   const [errors, setErrors] = useState({});
   const [currentBillNumber, setCurrentBillNumber] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [lastBillData, setLastBillData] = useState(null); // Store last bill for reprinting
 
   // Refs
   const priceRef = useRef(null);
@@ -109,10 +115,19 @@ export default function Billing() {
         if (response && response.bill) {
           setCurrentBillNumber(response.bill.billNumber);
 
+          // Store bill data for reprinting
+          setLastBillData({
+            items: response.bill.items || items,
+            total: response.bill.total || finalTotal,
+            billNumber: response.bill.billNumber,
+            customerName: response.bill.customerName,
+            phoneNumber: response.bill.phoneNumber,
+          });
+
           // Clear form
           clearBill();
 
-          // Print receipt via RawBT
+          // Auto print with RawBT by default (old printer)
           try {
             const encodedData = generatePrinterData({
               items: response.bill.items || items,
@@ -133,6 +148,40 @@ export default function Billing() {
     });
   };
 
+  // Print with POS Printer (Posiflex PP7600)
+  const handlePOSPrint = async () => {
+    if (!lastBillData) {
+      toast.error("No bill to print. Please save a bill first.");
+      return;
+    }
+
+    try {
+      const posData = generatePOSPrinterData(lastBillData);
+      await printWithPOSPrinter(posData);
+      toast.success("Printed to POS printer successfully!");
+    } catch (error) {
+      console.error("POS Print error:", error);
+      toast.error(error.message || "Failed to print to POS printer");
+    }
+  };
+
+  // Reprint with RawBT (old printer)
+  const handleRawBTPrint = () => {
+    if (!lastBillData) {
+      toast.error("No bill to print. Please save a bill first.");
+      return;
+    }
+
+    try {
+      const encodedData = generatePrinterData(lastBillData);
+      printWithRawBT(encodedData);
+      toast.success("Sent to thermal printer!");
+    } catch (error) {
+      console.error("Print error:", error);
+      toast.error("Failed to print");
+    }
+  };
+
   const removeItem = (indexToRemove) => {
     setItems(items.filter((_, index) => index !== indexToRemove));
   };
@@ -142,9 +191,26 @@ export default function Billing() {
       <Card className="w-full p-3 max-w-md bg-white shadow-lg rounded-2xl">
         {/* Bill Number Display */}
         {currentBillNumber && (
-          <p className="text-center font-semibold text-green-600 mb-4">
-            Bill No: {currentBillNumber}
-          </p>
+          <div className="text-center mb-4">
+            <p className="font-semibold text-green-600 mb-2">
+              Bill No: {currentBillNumber}
+            </p>
+            {/* Reprint Buttons */}
+            <div className="flex gap-2 justify-center">
+              <button
+                onClick={handleRawBTPrint}
+                className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition"
+              >
+                🖨️ Thermal Printer
+              </button>
+              <button
+                onClick={handlePOSPrint}
+                className="px-3 py-1.5 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 transition"
+              >
+                🖨️ POS Printer
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Item Input Section */}

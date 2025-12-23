@@ -2,6 +2,12 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getBills } from "../services/bill.service";
 import { toast } from "react-toastify";
+import {
+  generatePrinterData,
+  printWithRawBT,
+  generatePOSPrinterData,
+  printWithPOSPrinter,
+} from "../utils/printer";
 
 export default function SearchPage() {
   const [billNumber, setBillNumber] = useState("");
@@ -55,6 +61,42 @@ export default function SearchPage() {
       setSearchParams(params);
     } else {
       toast.error("Please enter at least one search criteria");
+    }
+  };
+
+  // Print with Thermal Printer (RawBT)
+  const handleThermalPrint = (bill) => {
+    try {
+      const encodedData = generatePrinterData({
+        items: bill.items || [],
+        total: bill.total,
+        billNumber: bill.billNumber,
+        customerName: bill.customerName,
+        phoneNumber: bill.phoneNumber,
+      });
+      printWithRawBT(encodedData);
+      toast.success("Sent to thermal printer!");
+    } catch (error) {
+      console.error("Print error:", error);
+      toast.error("Failed to print");
+    }
+  };
+
+  // Print with POS Printer (Posiflex PP7600)
+  const handlePOSPrint = async (bill) => {
+    try {
+      const posData = generatePOSPrinterData({
+        items: bill.items || [],
+        total: bill.total,
+        billNumber: bill.billNumber,
+        customerName: bill.customerName,
+        phoneNumber: bill.phoneNumber,
+      });
+      await printWithPOSPrinter(posData);
+      toast.success("Printed to POS printer successfully!");
+    } catch (error) {
+      console.error("POS Print error:", error);
+      toast.error(error.message || "Failed to print to POS printer");
     }
   };
 
@@ -145,6 +187,22 @@ export default function SearchPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Print Buttons */}
+                <div className="mt-3 flex gap-2">
+                  <button
+                    onClick={() => handleThermalPrint(bill)}
+                    className="flex-1 px-3 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition"
+                  >
+                    🖨️ Thermal Printer
+                  </button>
+                  <button
+                    onClick={() => handlePOSPrint(bill)}
+                    className="flex-1 px-3 py-2 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 transition"
+                  >
+                    🖨️ POS Printer
+                  </button>
                 </div>
               </div>
             ))}
