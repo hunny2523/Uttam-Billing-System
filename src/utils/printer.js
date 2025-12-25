@@ -237,7 +237,7 @@ export const printWithBrowserDialog = (billData) => {
             <style>
                 @media print {
                     @page {
-                        size: 79.756mm auto;
+                        size: 76.2mm auto;
                         margin: 0;
                     }
                     body {
@@ -254,11 +254,11 @@ export const printWithBrowserDialog = (billData) => {
                 }
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 10px;
+                    font-size: 9px;
                     font-weight: 600;
-                    width: 76mm;
+                    width: 72mm;
                     margin: 0;
-                    padding: 1.5mm;
+                    padding: 1mm;
                     box-sizing: border-box;
                     color: #000000;
                     background: white;
