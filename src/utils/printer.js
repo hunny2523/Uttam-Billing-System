@@ -242,22 +242,70 @@ export const printWithBrowserDialog = (billData) => {
                     }
                     body {
                         margin: 0;
-                        padding: 5mm;
+                        padding: 0;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                        color-adjust: exact;
+                    }
+                    * {
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
                     }
                 }
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 12px;
+                    font-size: 11px;
+                    font-weight: 600;
                     width: 80mm;
-                    margin: 0 auto;
+                    margin: 0;
+                    padding: 2mm;
+                    box-sizing: border-box;
+                    color: #000000;
+                    background: white;
                 }
                 .center { text-align: center; }
-                .bold { font-weight: bold; }
-                .large { font-size: 16px; }
-                .line { border-top: 1px dashed #000; margin: 5px 0; }
-                table { width: 100%; border-collapse: collapse; }
-                td { padding: 2px 0; }
+                .bold { 
+                    font-weight: 800;
+                    color: #000000;
+                }
+                .large { 
+                    font-size: 14px;
+                    font-weight: 800;
+                }
+                .line { 
+                    border-top: 2px dashed #000; 
+                    margin: 3px 0; 
+                }
+                table { 
+                    width: 100%; 
+                    border-collapse: collapse;
+                    table-layout: fixed;
+                    color: #000000;
+                }
+                td { 
+                    padding: 1px 2px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    font-weight: 600;
+                    color: #000000;
+                }
+                td:nth-child(1) { width: 40%; } /* Item name */
+                td:nth-child(2) { width: 20%; text-align: center; } /* Qty */
+                td:nth-child(3) { width: 20%; text-align: right; } /* Price */
+                td:nth-child(4) { width: 20%; text-align: right; } /* Total */
                 .right { text-align: right; }
+                .total-row {
+                    margin-top: 5px;
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 14px;
+                    font-weight: 800;
+                    color: #000000;
+                }
+                strong {
+                    font-weight: 800;
+                    color: #000000;
+                }
             </style>
         </head>
         <body>
@@ -276,27 +324,27 @@ export const printWithBrowserDialog = (billData) => {
                 <thead>
                     <tr>
                         <td><strong>Item</strong></td>
-                        <td class="right"><strong>Qty</strong></td>
-                        <td class="right"><strong>Price</strong></td>
-                        <td class="right"><strong>Total</strong></td>
+                        <td><strong>Qty</strong></td>
+                        <td><strong>Rate</strong></td>
+                        <td><strong>Amt</strong></td>
                     </tr>
                 </thead>
                 <tbody>
                     ${items.map(item => `
                         <tr>
-                            <td>${item.name}</td>
-                            <td class="right">${item.weight}Kg</td>
-                            <td class="right">₹${item.price}</td>
-                            <td class="right">₹${item.total.toFixed(2)}</td>
+                            <td>${item.name.length > 15 ? item.name.substring(0, 15) : item.name}</td>
+                            <td>${item.weight}Kg</td>
+                            <td>₹${item.price}</td>
+                            <td>₹${item.total.toFixed(2)}</td>
                         </tr>
                     `).join('')}
                 </tbody>
             </table>
             <div class="line"></div>
             
-            <div class="bold" style="font-size: 14px;">
+            <div class="total-row">
                 <span>TOTAL:</span>
-                <span class="right" style="float: right;">₹${total.toFixed(2)}</span>
+                <span>₹${total.toFixed(2)}</span>
             </div>
             <div class="line"></div>
             
