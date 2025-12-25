@@ -237,7 +237,7 @@ export const printWithBrowserDialog = (billData) => {
             <style>
                 @media print {
                     @page {
-                        size: 80mm auto;
+                        size: 79.756mm auto;
                         margin: 0;
                     }
                     body {
@@ -254,11 +254,11 @@ export const printWithBrowserDialog = (billData) => {
                 }
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 11px;
+                    font-size: 10px;
                     font-weight: 600;
-                    width: 80mm;
+                    width: 76mm;
                     margin: 0;
-                    padding: 2mm;
+                    padding: 1.5mm;
                     box-sizing: border-box;
                     color: #000000;
                     background: white;
@@ -269,12 +269,12 @@ export const printWithBrowserDialog = (billData) => {
                     color: #000000;
                 }
                 .large { 
-                    font-size: 14px;
+                    font-size: 13px;
                     font-weight: 800;
                 }
                 .line { 
                     border-top: 2px dashed #000; 
-                    margin: 3px 0; 
+                    margin: 2px 0; 
                 }
                 table { 
                     width: 100%; 
@@ -283,22 +283,23 @@ export const printWithBrowserDialog = (billData) => {
                     color: #000000;
                 }
                 td { 
-                    padding: 1px 2px;
+                    padding: 1px 1px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     font-weight: 600;
                     color: #000000;
+                    white-space: nowrap;
                 }
-                td:nth-child(1) { width: 40%; } /* Item name */
-                td:nth-child(2) { width: 20%; text-align: center; } /* Qty */
-                td:nth-child(3) { width: 20%; text-align: right; } /* Price */
-                td:nth-child(4) { width: 20%; text-align: right; } /* Total */
+                td:nth-child(1) { width: 35%; text-align: left; } /* Item name */
+                td:nth-child(2) { width: 22%; text-align: center; } /* Qty */
+                td:nth-child(3) { width: 21%; text-align: right; } /* Price */
+                td:nth-child(4) { width: 22%; text-align: right; } /* Total */
                 .right { text-align: right; }
                 .total-row {
-                    margin-top: 5px;
+                    margin-top: 4px;
                     display: flex;
                     justify-content: space-between;
-                    font-size: 14px;
+                    font-size: 13px;
                     font-weight: 800;
                     color: #000000;
                 }
@@ -332,10 +333,10 @@ export const printWithBrowserDialog = (billData) => {
                 <tbody>
                     ${items.map(item => `
                         <tr>
-                            <td>${item.name.length > 15 ? item.name.substring(0, 15) : item.name}</td>
+                            <td>${item.name.length > 12 ? item.name.substring(0, 12) : item.name}</td>
                             <td>${item.weight}Kg</td>
                             <td>₹${item.price}</td>
-                            <td>₹${item.total.toFixed(2)}</td>
+                            <td>₹${item.total.toFixed(0)}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -344,7 +345,7 @@ export const printWithBrowserDialog = (billData) => {
             
             <div class="total-row">
                 <span>TOTAL:</span>
-                <span>₹${total.toFixed(2)}</span>
+                <span>₹${total.toFixed(0)}</span>
             </div>
             <div class="line"></div>
             
