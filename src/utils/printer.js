@@ -262,8 +262,12 @@ export const printWithBrowserDialog = (billData) => {
                     box-sizing: border-box;
                     color: #000000;
                     background: white;
+                    word-wrap: break-word;
                 }
-                .center { text-align: center; }
+                .center { 
+                    text-align: center;
+                    word-wrap: break-word;
+                }
                 .bold { 
                     font-weight: 800;
                     color: #000000;
@@ -276,24 +280,33 @@ export const printWithBrowserDialog = (billData) => {
                     border-top: 2px dashed #000; 
                     margin: 2px 0; 
                 }
+                .info-line {
+                    margin: 2px 0;
+                    word-wrap: break-word;
+                    white-space: normal;
+                }
                 table { 
                     width: 100%; 
                     border-collapse: collapse;
                     table-layout: fixed;
                     color: #000000;
                 }
+                thead td {
+                    font-weight: 800;
+                    padding: 2px 1px;
+                }
                 td { 
-                    padding: 1px 1px;
+                    padding: 2px 1px;
                     overflow: hidden;
-                    text-overflow: ellipsis;
                     font-weight: 600;
                     color: #000000;
-                    white-space: nowrap;
+                    word-wrap: break-word;
+                    white-space: normal;
                 }
-                td:nth-child(1) { width: 35%; text-align: left; } /* Item name */
-                td:nth-child(2) { width: 22%; text-align: center; } /* Qty */
-                td:nth-child(3) { width: 21%; text-align: right; } /* Price */
-                td:nth-child(4) { width: 22%; text-align: right; } /* Total */
+                td:nth-child(1) { width: 40%; text-align: left; } /* Item name - wider */
+                td:nth-child(2) { width: 20%; text-align: center; } /* Qty */
+                td:nth-child(3) { width: 20%; text-align: right; } /* Rate */
+                td:nth-child(4) { width: 20%; text-align: right; } /* Amount */
                 .right { text-align: right; }
                 .total-row {
                     margin-top: 4px;
@@ -313,27 +326,28 @@ export const printWithBrowserDialog = (billData) => {
             <div class="center bold large">${BUSINESS_CONFIG.name}</div>
             <div class="center">${BUSINESS_CONFIG.address}</div>
             <div class="center">${BUSINESS_CONFIG.phone}</div>
+            <div class="center">${BUSINESS_CONFIG.website}</div>
             <div class="line"></div>
             
-            <div><strong>Bill No:</strong> ${billNumber}</div>
-            <div><strong>Date:</strong> ${new Date().toLocaleString('en-IN')}</div>
-            ${customerName ? `<div><strong>Customer:</strong> ${customerName}</div>` : ''}
-            ${phoneNumber ? `<div><strong>Phone:</strong> ${phoneNumber}</div>` : ''}
+            <div class="info-line"><strong>Bill No:</strong> ${billNumber}</div>
+            <div class="info-line"><strong>Date:</strong> ${new Date().toLocaleString('en-IN')}</div>
+            ${customerName ? `<div class="info-line"><strong>Customer:</strong> ${customerName}</div>` : ''}
+            ${phoneNumber ? `<div class="info-line"><strong>Phone:</strong> ${phoneNumber}</div>` : ''}
             <div class="line"></div>
             
             <table>
                 <thead>
                     <tr>
-                        <td><strong>Item</strong></td>
-                        <td><strong>Qty</strong></td>
-                        <td><strong>Rate</strong></td>
-                        <td><strong>Amt</strong></td>
+                        <td>Item</td>
+                        <td>Qty</td>
+                        <td>Rate</td>
+                        <td>Amt</td>
                     </tr>
                 </thead>
                 <tbody>
                     ${items.map(item => `
                         <tr>
-                            <td>${item.name.length > 12 ? item.name.substring(0, 12) : item.name}</td>
+                            <td>${item.name}</td>
                             <td>${item.weight}Kg</td>
                             <td>₹${item.price}</td>
                             <td>₹${item.total.toFixed(0)}</td>
