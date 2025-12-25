@@ -226,7 +226,7 @@ export const printWithBrowserDialog = (billData) => {
     const { items, total, billNumber, customerName, phoneNumber } = billData;
 
     // Create print window
-    const printWindow = window.open('', '', 'width=300,height=600');
+    const printWindow = window.open('', '', 'width=700,height=600');
 
     const htmlContent = `
         <!DOCTYPE html>
