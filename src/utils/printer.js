@@ -256,7 +256,7 @@ export const printWithBrowserDialog = (billData) => {
                     font-family: 'Courier New', monospace;
                     font-size: 8px;
                     font-weight: 600;
-                    width: 64mm;
+                    width: 58mm;
                     margin: 0;
                     padding: 0.5mm;
                     box-sizing: border-box;
@@ -373,7 +373,7 @@ export const printWithBrowserDialog = (billData) => {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
 
-    // Auto-print immediately when page loads
+    // Auto-print when page loads
     printWindow.onload = () => {
         printWindow.focus();
         printWindow.print();
@@ -382,11 +382,4 @@ export const printWithBrowserDialog = (billData) => {
             printWindow.close();
         }, 500);
     };
-
-    // Fallback: If onload doesn't trigger, print anyway
-    setTimeout(() => {
-        if (printWindow && !printWindow.closed) {
-            printWindow.print();
-        }
-    }, 100);
 };
