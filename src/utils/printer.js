@@ -256,7 +256,7 @@ export const printWithBrowserDialog = (billData) => {
                     font-family: 'Courier New', monospace;
                     font-size: 8px;
                     font-weight: 600;
-                    width: 58mm;
+                    width: 56mm;
                     margin: 0;
                     padding: 0.5mm;
                     box-sizing: border-box;
