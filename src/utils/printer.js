@@ -254,11 +254,11 @@ export const printWithBrowserDialog = (billData) => {
                 }
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 9px;
+                    font-size: 8px;
                     font-weight: 600;
-                    width: 72mm;
+                    width: 64mm;
                     margin: 0;
-                    padding: 1mm;
+                    padding: 0.5mm;
                     box-sizing: border-box;
                     color: #000000;
                     background: white;
