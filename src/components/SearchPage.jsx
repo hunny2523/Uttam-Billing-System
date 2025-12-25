@@ -198,7 +198,7 @@ export default function SearchPage() {
                     onClick={() => handlePOSPrint(bill)}
                     className="flex-1 px-3 py-2 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 transition"
                   >
-                    🖨️ POS Printer 7
+                    🖨️ POS Printer 8
                   </button>
                 </div>
               </div>
