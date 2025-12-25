@@ -90,7 +90,7 @@ export default function BillingCustomerInfo({
       <div className="flex flex-col relative">
         <Input
           ref={inputRef}
-          type="text"
+          type="tel"
           placeholder="Type phone number"
           value={phoneNumber}
           onChange={handlePhoneChange}
