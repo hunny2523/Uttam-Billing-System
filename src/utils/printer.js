@@ -254,8 +254,8 @@ export const printWithBrowserDialog = (billData) => {
                 }
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 8px;
-                    font-weight: 600;
+                    font-size: 9px;
+                    font-weight: 700;
                     width: 56mm;
                     margin: 0;
                     padding: 0.5mm;
@@ -292,13 +292,13 @@ export const printWithBrowserDialog = (billData) => {
                     color: #000000;
                 }
                 thead td {
-                    font-weight: 800;
+                    font-weight: 900;
                     padding: 2px 1px;
                 }
                 td { 
                     padding: 2px 1px;
                     overflow: hidden;
-                    font-weight: 600;
+                    font-weight: 700;
                     color: #000000;
                     word-wrap: break-word;
                     white-space: normal;
