@@ -318,3 +318,4 @@ export const printWithBrowserDialog = (billData) => {
             printWindow.close();
         }, 250);
     };
+};
