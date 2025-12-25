@@ -5,8 +5,7 @@ import { toast } from "react-toastify";
 import {
   generatePrinterData,
   printWithRawBT,
-  generatePOSPrinterData,
-  printWithPOSPrinter,
+  printWithBrowserDialog,
 } from "../utils/printer";
 
 export default function SearchPage() {
@@ -82,21 +81,19 @@ export default function SearchPage() {
     }
   };
 
-  // Print with POS Printer (Posiflex PP7600)
-  const handlePOSPrint = async (bill) => {
+  // Print with POS Printer (Browser Dialog)
+  const handlePOSPrint = (bill) => {
     try {
-      const posData = generatePOSPrinterData({
+      printWithBrowserDialog({
         items: bill.items || [],
         total: bill.total,
         billNumber: bill.billNumber,
         customerName: bill.customerName,
         phoneNumber: bill.phoneNumber,
       });
-      await printWithPOSPrinter(posData);
-      toast.success("Printed to POS printer successfully!");
     } catch (error) {
       console.error("POS Print error:", error);
-      toast.error(error.message || "Failed to print to POS printer");
+      toast.error("Failed to open print dialog");
     }
   };
 
@@ -201,7 +198,7 @@ export default function SearchPage() {
                     onClick={() => handlePOSPrint(bill)}
                     className="flex-1 px-3 py-2 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 transition"
                   >
-                    🖨️ POS Printer
+                    🖨️ POS Printer 2
                   </button>
                 </div>
               </div>

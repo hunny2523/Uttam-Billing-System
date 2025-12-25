@@ -6,7 +6,7 @@ import {
   generatePrinterData,
   printWithRawBT,
   generatePOSPrinterData,
-  printWithPOSPrinter,
+  printWithBrowserDialog,
 } from "../utils/printer";
 import BillingItemInput from "./BillingItemInput";
 import BillingItemsList from "./BillingItemsList";
@@ -148,20 +148,18 @@ export default function Billing() {
     });
   };
 
-  // Print with POS Printer (Posiflex PP7600)
-  const handlePOSPrint = async () => {
+  // Print with POS Printer (Browser Dialog - works with any POS printer)
+  const handlePOSPrint = () => {
     if (!lastBillData) {
       toast.error("No bill to print. Please save a bill first.");
       return;
     }
 
     try {
-      const posData = generatePOSPrinterData(lastBillData);
-      await printWithPOSPrinter(posData);
-      toast.success("Printed to POS printer successfully!");
+      printWithBrowserDialog(lastBillData);
     } catch (error) {
       console.error("POS Print error:", error);
-      toast.error(error.message || "Failed to print to POS printer");
+      toast.error("Failed to open print dialog");
     }
   };
 

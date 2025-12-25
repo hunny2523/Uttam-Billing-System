@@ -190,49 +190,131 @@ function textToBytes(text) {
 }
 
 /**
- * Print to Posiflex PP7600 via Web Bluetooth or USB
- * @param {Uint8Array} data - ESC/POS command bytes
+ * Print to POS system via network/IP
+ * @param {Object} billData - Bill data to print
+ * @param {string} printerIP - IP address of POS printer (e.g., "192.168.1.100:9100")
  */
-export const printWithPOSPrinter = async (data) => {
+export const printToNetworkPOS = async (billData, printerIP) => {
     try {
-        // Check if Web Bluetooth is available
-        if (!navigator.bluetooth) {
-            // Fallback to creating a download link for USB printing
-            const blob = new Blob([data], { type: 'application/octet-stream' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'print-job.prn';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+        const posData = generatePOSPrinterData(billData);
 
-            throw new Error('Web Bluetooth not supported. Print file downloaded. Send to printer via USB.');
-        }
-
-        // Request Bluetooth device
-        const device = await navigator.bluetooth.requestDevice({
-            filters: [
-                { services: ['000018f0-0000-1000-8000-00805f9b34fb'] }, // Bluetooth printer service
-            ],
-            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+        // Send to your print server endpoint
+        const response = await fetch(`http://${printerIP}/print`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/octet-stream',
+            },
+            body: posData
         });
 
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
-
-        // Send data in chunks (max 512 bytes per write for some devices)
-        const chunkSize = 512;
-        for (let i = 0; i < data.length; i += chunkSize) {
-            const chunk = data.slice(i, i + chunkSize);
-            await characteristic.writeValue(chunk);
+        if (!response.ok) {
+            throw new Error('Network print failed');
         }
 
-        return { success: true, message: 'Printed successfully!' };
+        return { success: true };
     } catch (error) {
-        console.error('POS Print Error:', error);
+        console.error('Network print error:', error);
         throw error;
     }
 };
+
+/**
+ * Print using browser's native print dialog (formatted for receipt printer)
+ * Works with any printer connected to the POS system
+ */
+export const printWithBrowserDialog = (billData) => {
+    const { items, total, billNumber, customerName, phoneNumber } = billData;
+
+    // Create print window
+    const printWindow = window.open('', '', 'width=300,height=600');
+
+    const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Bill ${billNumber}</title>
+            <style>
+                @media print {
+                    @page {
+                        size: 80mm auto;
+                        margin: 0;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 5mm;
+                    }
+                }
+                body {
+                    font-family: 'Courier New', monospace;
+                    font-size: 12px;
+                    width: 80mm;
+                    margin: 0 auto;
+                }
+                .center { text-align: center; }
+                .bold { font-weight: bold; }
+                .large { font-size: 16px; }
+                .line { border-top: 1px dashed #000; margin: 5px 0; }
+                table { width: 100%; border-collapse: collapse; }
+                td { padding: 2px 0; }
+                .right { text-align: right; }
+            </style>
+        </head>
+        <body>
+            <div class="center bold large">${BUSINESS_CONFIG.name}</div>
+            <div class="center">${BUSINESS_CONFIG.address}</div>
+            <div class="center">${BUSINESS_CONFIG.phone}</div>
+            <div class="line"></div>
+            
+            <div><strong>Bill No:</strong> ${billNumber}</div>
+            <div><strong>Date:</strong> ${new Date().toLocaleString('en-IN')}</div>
+            ${customerName ? `<div><strong>Customer:</strong> ${customerName}</div>` : ''}
+            ${phoneNumber ? `<div><strong>Phone:</strong> ${phoneNumber}</div>` : ''}
+            <div class="line"></div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <td><strong>Item</strong></td>
+                        <td class="right"><strong>Qty</strong></td>
+                        <td class="right"><strong>Price</strong></td>
+                        <td class="right"><strong>Total</strong></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${items.map(item => `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td class="right">${item.weight}Kg</td>
+                            <td class="right">₹${item.price}</td>
+                            <td class="right">₹${item.total.toFixed(2)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+            <div class="line"></div>
+            
+            <div class="bold" style="font-size: 14px;">
+                <span>TOTAL:</span>
+                <span class="right" style="float: right;">₹${total.toFixed(2)}</span>
+            </div>
+            <div class="line"></div>
+            
+            <div class="center">Thank You! Visit Again</div>
+            <div class="center">${BUSINESS_CONFIG.name}</div>
+            <br><br>
+        </body>
+        </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+
+    // Wait for content to load, then print
+    printWindow.onload = () => {
+        setTimeout(() => {
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        }, 250);
+    };
