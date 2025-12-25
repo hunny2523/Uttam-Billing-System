@@ -359,12 +359,20 @@ export const printWithBrowserDialog = (billData) => {
     printWindow.document.write(htmlContent);
     printWindow.document.close();
 
-    // Wait for content to load, then print
+    // Auto-print immediately when page loads
     printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+        // Auto-close after printing
         setTimeout(() => {
-            printWindow.focus();
-            printWindow.print();
             printWindow.close();
-        }, 250);
+        }, 500);
     };
+
+    // Fallback: If onload doesn't trigger, print anyway
+    setTimeout(() => {
+        if (printWindow && !printWindow.closed) {
+            printWindow.print();
+        }
+    }, 100);
 };
