@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Card } from "./Card";
 import { toast } from "react-toastify";
 import { useCreateBill } from "../hooks/useCreateBill";
+import { usePrinterSettings } from "../hooks/usePrinterSettings";
 import {
   generatePrinterData,
   printWithRawBT,
@@ -30,6 +31,9 @@ export default function Billing() {
 
   // Custom hook for creating bills
   const { mutate: createBillMutation, isPending: isLoading } = useCreateBill();
+
+  // Get printer settings
+  const { isPOSPrinter } = usePrinterSettings();
 
   // Auto-populate price when item is selected (if item has default price)
   useEffect(() => {
@@ -115,33 +119,42 @@ export default function Billing() {
         if (response && response.bill) {
           setCurrentBillNumber(response.bill.billNumber);
 
-          // Store bill data for reprinting
-          setLastBillData({
+          // Prepare bill data for printing
+          const printData = {
             items: response.bill.items || items,
             total: response.bill.total || finalTotal,
             billNumber: response.bill.billNumber,
             customerName: response.bill.customerName,
             phoneNumber: response.bill.phoneNumber,
-          });
+          };
 
-          // Clear form
-          clearBill();
+          // Store bill data for potential reprinting
+          setLastBillData(printData);
 
-          // Auto print with RawBT by default (old printer)
+          // Auto print based on selected printer type
           try {
-            const encodedData = generatePrinterData({
-              items: response.bill.items || items,
-              total: response.bill.total || finalTotal,
-              billNumber: response.bill.billNumber,
-              customerName: response.bill.customerName,
-              phoneNumber: response.bill.phoneNumber,
-            });
-            printWithRawBT(encodedData);
+            if (isPOSPrinter) {
+              // Print with POS printer (browser dialog)
+              printWithBrowserDialog(printData);
+              toast.success("Bill saved! Printing...");
+            } else {
+              // Print with Thermal printer (RawBT)
+              const encodedData = generatePrinterData(printData);
+              printWithRawBT(encodedData);
+              toast.success("Bill saved! Sent to thermal printer");
+            }
+
+            // Clear form after successful print
+            setTimeout(() => {
+              clearBill();
+            }, 500);
           } catch (printError) {
             console.error("Print error:", printError);
             toast.warning(
-              "Bill saved but print failed. Check RawBT connection."
+              "Bill saved but print failed. Check printer connection."
             );
+            // Still clear the form even if print fails
+            clearBill();
           }
         }
       },
@@ -187,30 +200,6 @@ export default function Billing() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
       <Card className="w-full p-3 max-w-md bg-white shadow-lg rounded-2xl">
-        {/* Bill Number Display */}
-        {currentBillNumber && (
-          <div className="text-center mb-4">
-            <p className="font-semibold text-green-600 mb-2">
-              Bill No: {currentBillNumber}
-            </p>
-            {/* Reprint Buttons */}
-            <div className="flex gap-2 justify-center">
-              <button
-                onClick={handleRawBTPrint}
-                className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition"
-              >
-                🖨️ Thermal Printer
-              </button>
-              <button
-                onClick={handlePOSPrint}
-                className="px-3 py-1.5 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 transition"
-              >
-                🖨️ POS Printer
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Item Input Section */}
         <BillingItemInput
           price={price}

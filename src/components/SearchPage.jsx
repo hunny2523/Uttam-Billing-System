@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getBills } from "../services/bill.service";
 import { toast } from "react-toastify";
+import { usePrinterSettings } from "../hooks/usePrinterSettings";
 import {
   generatePrinterData,
   printWithRawBT,
@@ -13,6 +14,9 @@ export default function SearchPage() {
   const [selectedDate, setSelectedDate] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchParams, setSearchParams] = useState(null);
+
+  // Get printer settings
+  const { isPOSPrinter } = usePrinterSettings();
 
   const {
     data: response,
@@ -63,37 +67,30 @@ export default function SearchPage() {
     }
   };
 
-  // Print with Thermal Printer (RawBT)
-  const handleThermalPrint = (bill) => {
+  // Print bill using selected printer type from settings
+  const handlePrint = (bill) => {
     try {
-      const encodedData = generatePrinterData({
+      const billData = {
         items: bill.items || [],
         total: bill.total,
         billNumber: bill.billNumber,
         customerName: bill.customerName,
         phoneNumber: bill.phoneNumber,
-      });
-      printWithRawBT(encodedData);
-      toast.success("Sent to thermal printer!");
+      };
+
+      if (isPOSPrinter) {
+        // Print with POS printer (browser dialog)
+        printWithBrowserDialog(billData);
+        toast.success("Opening print dialog...");
+      } else {
+        // Print with Thermal printer (RawBT)
+        const encodedData = generatePrinterData(billData);
+        printWithRawBT(encodedData);
+        toast.success("Sent to thermal printer!");
+      }
     } catch (error) {
       console.error("Print error:", error);
       toast.error("Failed to print");
-    }
-  };
-
-  // Print with POS Printer (Browser Dialog)
-  const handlePOSPrint = (bill) => {
-    try {
-      printWithBrowserDialog({
-        items: bill.items || [],
-        total: bill.total,
-        billNumber: bill.billNumber,
-        customerName: bill.customerName,
-        phoneNumber: bill.phoneNumber,
-      });
-    } catch (error) {
-      console.error("POS Print error:", error);
-      toast.error("Failed to open print dialog");
     }
   };
 
@@ -186,19 +183,13 @@ export default function SearchPage() {
                   </table>
                 </div>
 
-                {/* Print Buttons */}
-                <div className="mt-3 flex gap-2">
+                {/* Print Button */}
+                <div className="mt-3">
                   <button
-                    onClick={() => handleThermalPrint(bill)}
-                    className="flex-1 px-3 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition"
+                    onClick={() => handlePrint(bill)}
+                    className="w-full px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition font-medium"
                   >
-                    🖨️ Thermal Printer
-                  </button>
-                  <button
-                    onClick={() => handlePOSPrint(bill)}
-                    className="flex-1 px-3 py-2 bg-purple-500 text-white text-sm rounded hover:bg-purple-600 transition"
-                  >
-                    🖨️ POS Printer 8
+                    🖨️ Print Bill
                   </button>
                 </div>
               </div>

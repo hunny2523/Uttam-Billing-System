@@ -7,6 +7,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import SearchPage from "./components/SearchPage";
 import ItemsManagement from "./components/ItemsManagement";
 import PasswordManagement from "./components/PasswordManagement";
+import Settings from "./components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import {
@@ -115,6 +116,16 @@ export default function App() {
               element={
                 <ProtectedRoute allowedRoles={["ADMIN"]}>
                   <PasswordManagement />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Settings - Admin & Staff can access */}
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN", "STAFF"]}>
+                  <Settings />
                 </ProtectedRoute>
               }
             />

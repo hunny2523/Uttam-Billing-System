@@ -7,12 +7,21 @@ import { useInfiniteBills } from "../hooks/useInfiniteBills";
 import { useQuery } from "@tanstack/react-query";
 import api from "../services/api";
 import BillDetailsModal from "./BillDetailsModal";
+import { usePrinterSettings } from "../hooks/usePrinterSettings";
+import {
+  generatePrinterData,
+  printWithRawBT,
+  printWithBrowserDialog,
+} from "../utils/printer";
 
 export default function AdminDashboard() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [selectedBill, setSelectedBill] = useState(null);
   const [isExporting, setIsExporting] = useState(false);
+
+  // Get printer settings
+  const { isPOSPrinter } = usePrinterSettings();
 
   // Initialize dates with today's date
   if (!startDate || !endDate) {
@@ -79,6 +88,33 @@ export default function AdminDashboard() {
     setStartDate(start);
     setEndDate(end);
     // useInfiniteQuery will automatically refetch due to queryKey change
+  };
+
+  // Print bill using selected printer type from settings
+  const handlePrint = (bill) => {
+    try {
+      const billData = {
+        items: bill.items || [],
+        total: bill.total,
+        billNumber: bill.billNumber,
+        customerName: bill.customerName,
+        phoneNumber: bill.phoneNumber,
+      };
+
+      if (isPOSPrinter) {
+        // Print with POS printer (browser dialog)
+        printWithBrowserDialog(billData);
+        toast.success("Opening print dialog...");
+      } else {
+        // Print with Thermal printer (RawBT)
+        const encodedData = generatePrinterData(billData);
+        printWithRawBT(encodedData);
+        toast.success("Sent to thermal printer!");
+      }
+    } catch (error) {
+      console.error("Print error:", error);
+      toast.error("Failed to print");
+    }
   };
 
   // Export function - fetches ALL bills for the date range
@@ -263,6 +299,9 @@ export default function AdminDashboard() {
                   <th className="px-4 py-3 text-left font-bold text-gray-700">
                     Date & Time
                   </th>
+                  <th className="px-4 py-3 text-center font-bold text-gray-700">
+                    Print
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -295,6 +334,15 @@ export default function AdminDashboard() {
                       {new Date(bill.timestamp).toLocaleString("en-IN", {
                         timeZone: "Asia/Kolkata",
                       })}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handlePrint(bill)}
+                        className="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
+                        title="Print Bill"
+                      >
+                        🖨️
+                      </button>
                     </td>
                   </tr>
                 ))}
