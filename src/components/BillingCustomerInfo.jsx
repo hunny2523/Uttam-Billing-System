@@ -1,6 +1,8 @@
 import { Input } from "./Input";
 import { useState, useEffect, useRef } from "react";
 import { useCustomers } from "../hooks/useCustomers";
+import { useContactPicker } from "../hooks/useContactPicker";
+import { toast } from "react-toastify";
 
 export default function BillingCustomerInfo({
   customerName,
@@ -21,6 +23,40 @@ export default function BillingCustomerInfo({
   );
 
   const customers = customersData?.customers || [];
+
+  // Contact Picker API
+  const { isSupported: isContactPickerSupported, pickContact } =
+    useContactPicker();
+
+  // Handle contact picker
+  const handlePickContact = async () => {
+    try {
+      const contact = await pickContact({
+        properties: ["name", "tel"],
+        multiple: false,
+      });
+
+      if (contact) {
+        // Clean phone number (remove non-digits)
+        const cleanPhone = contact.phone.replace(/\D/g, "");
+
+        // Set phone number (take last 10 digits if longer)
+        const phoneToSet =
+          cleanPhone.length > 10 ? cleanPhone.slice(-10) : cleanPhone;
+        setPhoneNumber(phoneToSet);
+
+        // Set name if available
+        if (contact.name) {
+          setCustomerName(contact.name);
+        }
+
+        toast.success("Contact imported successfully");
+      }
+    } catch (error) {
+      console.error("Error picking contact:", error);
+      toast.error("Failed to import contact");
+    }
+  };
 
   // Handle phone number input change
   const handlePhoneChange = (e) => {
@@ -88,17 +124,39 @@ export default function BillingCustomerInfo({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col relative">
-        <Input
-          ref={inputRef}
-          type="tel"
-          placeholder="Type phone number"
-          value={phoneNumber}
-          onChange={handlePhoneChange}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          autoComplete="off"
-        />
+        <div className="flex gap-2">
+          <Input
+            ref={inputRef}
+            type="tel"
+            placeholder="Type phone number"
+            value={phoneNumber}
+            onChange={handlePhoneChange}
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            autoComplete="off"
+          />
+
+          {/* Contact Picker Button */}
+          {isContactPickerSupported && (
+            <button
+              type="button"
+              onClick={handlePickContact}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-2 whitespace-nowrap"
+              title="Import from contacts"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+              </svg>
+              <span className="hidden sm:inline">Contacts</span>
+            </button>
+          )}
+        </div>
 
         {/* Dropdown for customer suggestions */}
         {showDropdown && customers.length > 0 && (
