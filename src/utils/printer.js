@@ -48,14 +48,15 @@ export const generatePrinterData = ({
     data += "\x1B\x21\x08"; // Bold text for items
     data += "Items:\n\n";
     data += "\x1B\x21\x00"; // Reset text
-
-    // Print each item
+    // Print each item (use English for thermal printer)
     items.forEach((item, index) => {
         let indexNo = `${index + 1}.`.padEnd(3);
+        // Use English name for thermal printer, fallback to regular name for old bills
+        const displayName = item.nameEnglish || item.name;
         let name =
-            item.name.length > 11
-                ? item.name.slice(0, 11) + "."
-                : item.name.padEnd(12);
+            displayName.length > 11
+                ? displayName.slice(0, 11) + "."
+                : displayName.padEnd(12);
         let price = `₹${item.price}`.padStart(4);
         let qty = `${item.weight} Kg`.padStart(7);
         let itemTotal = `₹${item.total.toFixed(2)}`.padStart(6) + "    ";
@@ -150,9 +151,11 @@ export const generatePOSPrinterData = ({
     commands.push(ESC, 0x21, 0x00); // Normal
     commands.push(...textToBytes("".padEnd(42, "-") + "\n"));
 
-    // Print items
+    // Print items (use Gujarati for POS printer)
     items.forEach((item) => {
-        const name = item.name.length > 12 ? item.name.slice(0, 12) : item.name.padEnd(12);
+        // Use Gujarati name for POS printer, fallback to regular name for old bills
+        const displayName = item.nameGujarati || item.labelGujarati || item.name;
+        const name = displayName.length > 12 ? displayName.slice(0, 12) : displayName.padEnd(12);
         const price = `₹${item.price}`.padStart(6);
         const qty = `${item.weight}Kg`.padStart(6);
         const amount = `₹${item.total.toFixed(2)}`.padStart(8);
@@ -347,7 +350,7 @@ export const printWithBrowserDialog = (billData) => {
                 <tbody>
                     ${items.map(item => `
                         <tr>
-                            <td>${item.name}</td>
+                            <td>${item.nameGujarati || item.labelGujarati || item.name}</td>
                             <td>${item.weight}Kg</td>
                             <td>₹${item.price}</td>
                             <td>₹${item.total.toFixed(0)}</td>

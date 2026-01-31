@@ -6,23 +6,29 @@ const PRINTER_TYPES = {
 };
 
 export const usePrinterSettings = () => {
-    const [printerType, setPrinterType] = useState(PRINTER_TYPES.POS);
+    // Detect if device is mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Set default printer based on device type
+    const defaultPrinter = isMobile ? PRINTER_TYPES.THERMAL : PRINTER_TYPES.POS;
+
+    const [printerType, setPrinterType] = useState(defaultPrinter);
 
     useEffect(() => {
-        // Load saved printer preference
-        const savedPrinter = localStorage.getItem('printerType') || PRINTER_TYPES.POS;
+        // Load saved printer preference, or use device-specific default
+        const savedPrinter = localStorage.getItem('printerType') || defaultPrinter;
         setPrinterType(savedPrinter);
 
         // Listen for storage changes (if updated in another tab/component)
         const handleStorageChange = (e) => {
             if (e.key === 'printerType') {
-                setPrinterType(e.newValue || PRINTER_TYPES.POS);
+                setPrinterType(e.newValue || defaultPrinter);
             }
         };
 
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
-    }, []);
+    }, [defaultPrinter]);
 
     return {
         printerType,

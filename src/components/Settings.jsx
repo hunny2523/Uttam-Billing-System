@@ -10,16 +10,24 @@ const PRINTER_TYPES = {
 };
 
 const Settings = () => {
-  const [selectedPrinter, setSelectedPrinter] = useState(PRINTER_TYPES.POS);
+  // Detect if device is mobile
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+
+  // Set default printer based on device type
+  const defaultPrinter = isMobile ? PRINTER_TYPES.THERMAL : PRINTER_TYPES.POS;
+
+  const [selectedPrinter, setSelectedPrinter] = useState(defaultPrinter);
   const [isSaved, setIsSaved] = useState(false);
   const userIsAdmin = isAdmin();
 
   useEffect(() => {
-    // Load saved printer preference
-    const savedPrinter =
-      localStorage.getItem("printerType") || PRINTER_TYPES.POS;
+    // Load saved printer preference, or use device-specific default
+    const savedPrinter = localStorage.getItem("printerType") || defaultPrinter;
     setSelectedPrinter(savedPrinter);
-  }, []);
+  }, [defaultPrinter]);
 
   const handleSave = () => {
     localStorage.setItem("printerType", selectedPrinter);
@@ -52,7 +60,8 @@ const Settings = () => {
                   <div className="ml-3">
                     <div className="font-medium">POS Printer</div>
                     <div className="text-sm text-gray-500">
-                      Use browser print dialog for POS system (Default)
+                      Use browser print dialog for POS system{" "}
+                      {!isMobile && "(Default for Desktop)"}
                     </div>
                   </div>
                 </label>
@@ -70,7 +79,8 @@ const Settings = () => {
                   <div className="ml-3">
                     <div className="font-medium">Bluetooth Thermal Printer</div>
                     <div className="text-sm text-gray-500">
-                      Use RawBT mobile thermal printer
+                      Use RawBT mobile thermal printer{" "}
+                      {isMobile && "(Default for Mobile)"}
                     </div>
                   </div>
                 </label>
