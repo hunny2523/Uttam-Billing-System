@@ -1,7 +1,7 @@
 {
-  "name": "CP Spices Billing System",
-  "short_name": "CP Spices",
-  "description": "Efficient billing and item management application for CP Spices",
+  "name": "Uttam Masala Billing System",
+  "short_name": "Uttam Masala",
+  "description": "Efficient billing and item management application for Uttam Masala",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
