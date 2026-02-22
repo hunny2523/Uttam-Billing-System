@@ -13,13 +13,14 @@ const Settings = () => {
   // Detect if device is mobile
   const isMobile =
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
+      navigator.userAgent,
     );
 
   // Set default printer based on device type
   const defaultPrinter = isMobile ? PRINTER_TYPES.THERMAL : PRINTER_TYPES.POS;
 
   const [selectedPrinter, setSelectedPrinter] = useState(defaultPrinter);
+  const [whatsappEnabled, setWhatsappEnabled] = useState(false); // Default OFF
   const [isSaved, setIsSaved] = useState(false);
   const userIsAdmin = isAdmin();
 
@@ -27,10 +28,15 @@ const Settings = () => {
     // Load saved printer preference, or use device-specific default
     const savedPrinter = localStorage.getItem("printerType") || defaultPrinter;
     setSelectedPrinter(savedPrinter);
+
+    // Load WhatsApp preference (default is false/OFF)
+    const savedWhatsappPref = localStorage.getItem("whatsappEnabled");
+    setWhatsappEnabled(savedWhatsappPref === "true");
   }, [defaultPrinter]);
 
   const handleSave = () => {
     localStorage.setItem("printerType", selectedPrinter);
+    localStorage.setItem("whatsappEnabled", whatsappEnabled.toString());
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };
@@ -84,6 +90,37 @@ const Settings = () => {
                     </div>
                   </div>
                 </label>
+              </div>
+            </div>
+
+            {/* WhatsApp Settings Section */}
+            <div className="pt-4 border-t">
+              <h2 className="text-lg font-semibold mb-4">WhatsApp Settings</h2>
+
+              <div className="space-y-3">
+                <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={whatsappEnabled}
+                    onChange={(e) => setWhatsappEnabled(e.target.checked)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <div className="ml-3">
+                    <div className="font-medium">Enable Automatic WhatsApp</div>
+                    <div className="text-sm text-gray-500">
+                      Automatically send WhatsApp messages when saving bills
+                      {!whatsappEnabled && " (Currently OFF - Default)"}
+                    </div>
+                  </div>
+                </label>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Note:</strong> When disabled, you can still send
+                    WhatsApp messages manually using the "Send WhatsApp" button
+                    after saving a bill.
+                  </p>
+                </div>
               </div>
             </div>
 

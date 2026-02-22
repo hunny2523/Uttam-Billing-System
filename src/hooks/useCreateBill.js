@@ -33,7 +33,7 @@ export const useCreateBill = () => {
                 queryKey: ["customers"]
             });
 
-            // Check WhatsApp status and show appropriate message
+            // Only show WhatsApp status if automatic WhatsApp was attempted
             if (data?.whatsapp) {
                 if (data.whatsapp.success) {
                     toast.success("Bill saved, WhatsApp message sent!");
@@ -43,7 +43,8 @@ export const useCreateBill = () => {
                     );
                 }
             } else {
-                toast.success("Bill saved!");
+                // No WhatsApp attempted - just show success
+                toast.success("Bill saved successfully!");
             }
         },
         onError: (error) => {
