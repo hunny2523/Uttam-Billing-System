@@ -5,8 +5,6 @@ export const useContactPicker = () => {
         'contacts' in navigator && 'ContactsManager' in window
     );
 
-    console.log(isSupported)
-
     const pickContact = useCallback(async (options = {}) => {
         if (!isSupported) {
             throw new Error('Contact Picker API is not supported in this browser');
