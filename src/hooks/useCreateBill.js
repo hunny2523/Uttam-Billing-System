@@ -21,7 +21,10 @@ export const useCreateBill = () => {
             console.log(data)
 
             // Revalidate bills data in dashboard
-            // Invalidates both infinite scroll and export queries
+            // Invalidates all bills queries (infinite scroll, export, and regular queries)
+            queryClient.invalidateQueries({
+                queryKey: ["bills"]
+            });
             queryClient.invalidateQueries({
                 queryKey: ["bills-infinite"]
             });

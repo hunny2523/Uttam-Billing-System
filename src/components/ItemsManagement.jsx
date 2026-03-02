@@ -29,7 +29,7 @@ export default function ItemsManagement() {
 
   // Fetch all items (including inactive for admin management)
   const { data, isLoading, error } = useQuery({
-    queryKey: ["items", "all"],
+    queryKey: ["items", true], // true = includeInactive for admin
     queryFn: () => getItems(true), // includeInactive = true for admin
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -124,7 +124,7 @@ export default function ItemsManagement() {
     (item) =>
       item.labelGujarati.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.labelEnglish.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.value.toLowerCase().includes(searchTerm.toLowerCase())
+      item.value.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   if (isLoading) {
