@@ -60,5 +60,5 @@ createRoot(document.getElementById("root")).render(
       pauseOnHover
       theme="light"
     />
-  </StrictMode>
+  </StrictMode>,
 );
