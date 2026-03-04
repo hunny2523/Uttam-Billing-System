@@ -18,7 +18,7 @@ export const createSimpleWhatsAppBillMessage = ({
     const lines = [];
 
     // Business Name
-    lines.push(`*${BUSINESS_CONFIG.fullName}*`);
+    lines.push(`*${BUSINESS_CONFIG.fullName}* 🌶️`);
     lines.push(`${BUSINESS_CONFIG.address}`);
     lines.push(`📞 ${BUSINESS_CONFIG.phone}`);
     lines.push('');
@@ -52,8 +52,7 @@ export const createSimpleWhatsAppBillMessage = ({
     lines.push('');
     lines.push(`💰 *Total: ₹${total.toFixed(2)}*`);
     lines.push('');
-    lines.push('🙏 Thank you for your business!');
-    lines.push('CP Spices 🌶️');
+    lines.push('🙏 Thank you!');
 
     return lines.join('\n');
 };
