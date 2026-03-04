@@ -77,8 +77,10 @@ export default function ItemsManagement() {
   // Update item mutation
   const updateItemMutation = useMutation({
     mutationFn: ({ id, itemData }) => updateItem(id, itemData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+    onSuccess: async (data) => {
+      // Invalidate and refetch to get the updated list with proper ordering
+      await queryClient.invalidateQueries({ queryKey: ["items"] });
+      await queryClient.refetchQueries({ queryKey: ["items"] });
       toast.success("Item updated successfully!");
       setIsEditDialogOpen(false);
       setEditingItem(null);
@@ -91,8 +93,10 @@ export default function ItemsManagement() {
   // Create item mutation
   const createItemMutation = useMutation({
     mutationFn: createItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+    onSuccess: async () => {
+      // Invalidate and refetch to get the updated list with proper ordering
+      await queryClient.invalidateQueries({ queryKey: ["items"] });
+      await queryClient.refetchQueries({ queryKey: ["items"] });
       toast.success("Item created successfully!");
       setIsAddingItem(false);
       setNewItem({
@@ -112,8 +116,10 @@ export default function ItemsManagement() {
   // Toggle item status mutation
   const toggleStatusMutation = useMutation({
     mutationFn: toggleItemStatus,
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["items"] });
+    onSuccess: async (data) => {
+      // Invalidate and refetch to get the updated list with proper ordering
+      await queryClient.invalidateQueries({ queryKey: ["items"] });
+      await queryClient.refetchQueries({ queryKey: ["items"] });
       toast.success(data.message || "Item status updated!");
       setIsEditDialogOpen(false);
       setEditingItem(null);
