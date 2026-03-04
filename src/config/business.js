@@ -3,13 +3,17 @@ const parseContacts = () => {
     try {
         const contactsJson = import.meta.env.VITE_CONTACTS;
         if (contactsJson) {
-            return JSON.parse(contactsJson);
+            const parsed = JSON.parse(contactsJson);
+            // Ensure it's an array
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
         }
     } catch (error) {
         console.error('Error parsing VITE_CONTACTS:', error);
     }
 
-    // Default contacts
+    // Default contacts - always return an array
     return [
         {
             name: 'Dilip Patel',
@@ -29,7 +33,7 @@ export const BUSINESS_CONFIG = {
     description: import.meta.env.VITE_BUSINESS_DESCRIPTION || 'Efficient billing and item management application',
     address: import.meta.env.VITE_BUSINESS_ADDRESS || 'Ahmedabad–Kalol Highway, Shertha, Gandhinagar – 382423',
 
-    // Contact Information - Array of contacts
+    // Contact Information - Array of contacts (guaranteed to be an array)
     contacts: parseContacts(),
 
     // For backward compatibility

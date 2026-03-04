@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { BUSINESS_CONFIG } from "../config/business";
 import { getColorScheme } from "../utils/colors";
 
@@ -10,11 +10,7 @@ export default function PriceList() {
   // Get color scheme based on theme color
   const colors = getColorScheme(BUSINESS_CONFIG.themeColor);
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
-
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
       setLoading(true);
       const apiBaseUrl =
@@ -33,7 +29,34 @@ export default function PriceList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Initial fetch on mount
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
+
+  // Refetch when page becomes visible (user switches back to tab or navigates back)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchItems();
+      }
+    };
+
+    // Refetch when page gains focus
+    const handleFocus = () => {
+      fetchItems();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [fetchItems]);
 
   // Group items by category
   const groupedItems = items.reduce((acc, item) => {
@@ -117,7 +140,7 @@ export default function PriceList() {
           {/* Contact Information Cards */}
           <div className="px-4 md:px-6 py-5 md:py-6 bg-gradient-to-b from-gray-50 to-white">
             <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-              {BUSINESS_CONFIG.contacts.map((contact, index) => (
+              {(BUSINESS_CONFIG.contacts || []).map((contact, index) => (
                 <a
                   key={index}
                   href={`tel:${contact.phone}`}

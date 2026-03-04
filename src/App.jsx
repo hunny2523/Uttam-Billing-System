@@ -15,6 +15,9 @@ const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 5, // 5 minutes
       gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
       retry: 1,
+      refetchOnWindowFocus: true, // Refetch when user returns to the tab
+      refetchOnMount: true, // Refetch when component mounts
+      refetchOnReconnect: true, // Refetch when internet reconnects
     },
   },
 });
