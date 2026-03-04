@@ -58,6 +58,9 @@ export const createSimpleWhatsAppBillMessage = ({
     return lines.join('\n');
 };
 
+// Export alias for backward compatibility
+export const createWhatsAppBillMessage = createSimpleWhatsAppBillMessage;
+
 /**
  * Legacy sendWhatsApp function (kept for compatibility)
  * @deprecated Use createWhatsAppBillMessage instead
