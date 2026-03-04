@@ -199,7 +199,7 @@ export default function PriceList() {
             className={`bg-gradient-to-r ${colors.gradient} text-white py-4 px-6`}
           >
             <h2 className="text-2xl md:text-3xl font-bold text-center">
-              Price List
+              Price List (per kg)
             </h2>
           </div>
 
