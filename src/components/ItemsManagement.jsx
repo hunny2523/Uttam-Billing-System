@@ -36,7 +36,8 @@ export default function ItemsManagement() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["items", "all"],
     queryFn: () => getItems(true), // includeInactive = true for admin
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 0, // Always refetch to show latest updates
+    gcTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
   });
 
   const items = data?.items || [];
@@ -78,9 +79,12 @@ export default function ItemsManagement() {
   const updateItemMutation = useMutation({
     mutationFn: ({ id, itemData }) => updateItem(id, itemData),
     onSuccess: async (data) => {
-      // Invalidate and refetch to get the updated list with proper ordering
-      await queryClient.invalidateQueries({ queryKey: ["items"] });
-      await queryClient.refetchQueries({ queryKey: ["items"] });
+      // Force immediate refetch with type: 'active' to ignore staleTime
+      await queryClient.refetchQueries({
+        queryKey: ["items"],
+        type: "active",
+        exact: false,
+      });
       toast.success("Item updated successfully!");
       setIsEditDialogOpen(false);
       setEditingItem(null);
@@ -94,9 +98,12 @@ export default function ItemsManagement() {
   const createItemMutation = useMutation({
     mutationFn: createItem,
     onSuccess: async () => {
-      // Invalidate and refetch to get the updated list with proper ordering
-      await queryClient.invalidateQueries({ queryKey: ["items"] });
-      await queryClient.refetchQueries({ queryKey: ["items"] });
+      // Force immediate refetch with type: 'active' to ignore staleTime
+      await queryClient.refetchQueries({
+        queryKey: ["items"],
+        type: "active",
+        exact: false,
+      });
       toast.success("Item created successfully!");
       setIsAddingItem(false);
       setNewItem({
@@ -117,9 +124,12 @@ export default function ItemsManagement() {
   const toggleStatusMutation = useMutation({
     mutationFn: toggleItemStatus,
     onSuccess: async (data) => {
-      // Invalidate and refetch to get the updated list with proper ordering
-      await queryClient.invalidateQueries({ queryKey: ["items"] });
-      await queryClient.refetchQueries({ queryKey: ["items"] });
+      // Force immediate refetch with type: 'active' to ignore staleTime
+      await queryClient.refetchQueries({
+        queryKey: ["items"],
+        type: "active",
+        exact: false,
+      });
       toast.success(data.message || "Item status updated!");
       setIsEditDialogOpen(false);
       setEditingItem(null);
