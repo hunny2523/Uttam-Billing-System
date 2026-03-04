@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { BUSINESS_CONFIG } from "../config/business";
+import { getColorScheme } from "../utils/colors";
 
 export default function PriceList() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Get color scheme based on theme color
+  const colors = getColorScheme(BUSINESS_CONFIG.themeColor);
 
   useEffect(() => {
     fetchItems();
@@ -65,30 +69,37 @@ export default function PriceList() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 py-8 px-4">
+    <div
+      className={`min-h-screen bg-gradient-to-br ${colors.bgGradient} py-8 px-4`}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6 border-t-4 border-red-600">
-          <h1 className="text-3xl md:text-4xl font-bold text-center text-red-700 mb-2">
+        <div
+          className={`bg-white rounded-lg shadow-lg p-6 mb-6 border-t-4 ${colors.border}`}
+        >
+          <h1
+            className={`text-3xl md:text-4xl font-bold text-center ${colors.text} mb-2`}
+          >
             {BUSINESS_CONFIG.name}
           </h1>
           <div className="text-center text-gray-700 space-y-1">
             <p className="text-sm md:text-base">{BUSINESS_CONFIG.address}</p>
             <div className="flex flex-wrap justify-center gap-4 mt-2">
-              <p className="text-sm md:text-base font-semibold">
-                Dilip Patel:{" "}
-                <span className="text-blue-600">{BUSINESS_CONFIG.phone}</span>
-              </p>
-              <p className="text-sm md:text-base font-semibold">
-                Asha Patel: <span className="text-blue-600">9409408456</span>
-              </p>
+              {BUSINESS_CONFIG.contacts.map((contact, index) => (
+                <p key={index} className="text-sm md:text-base font-semibold">
+                  {contact.name}:{" "}
+                  <span className="text-blue-600">{contact.phone}</span>
+                </p>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Price List Section */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white py-4 px-6">
+          <div
+            className={`bg-gradient-to-r ${colors.gradient} text-white py-4 px-6`}
+          >
             <h2 className="text-2xl md:text-3xl font-bold text-center">
               Price List
             </h2>
@@ -101,8 +112,12 @@ export default function PriceList() {
                 className="border-b border-gray-200 last:border-0 pb-6 last:pb-0"
               >
                 {/* Category Header */}
-                <div className="bg-gradient-to-r from-orange-100 to-red-50 px-4 py-2 mb-3 rounded-lg border-l-4 border-red-600">
-                  <h3 className="text-lg md:text-xl font-bold text-red-800">
+                <div
+                  className={`bg-gradient-to-r ${colors.categoryBg} px-4 py-2 mb-3 rounded-lg border-l-4 ${colors.border}`}
+                >
+                  <h3
+                    className={`text-lg md:text-xl font-bold ${colors.darkText}`}
+                  >
                     {category.categoryEnglish}
                   </h3>
                   <p className="text-sm md:text-base text-gray-700">
@@ -115,7 +130,7 @@ export default function PriceList() {
                   {category.items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex justify-between items-center py-2 border-b border-gray-100 hover:bg-orange-50 px-2 transition-colors"
+                      className={`flex justify-between items-center py-2 border-b border-gray-100 ${colors.hover} px-2 transition-colors`}
                     >
                       <div className="flex-1">
                         <div className="font-medium text-gray-800 text-sm md:text-base">
@@ -125,7 +140,9 @@ export default function PriceList() {
                           {item.labelGujarati}
                         </div>
                       </div>
-                      <div className="font-bold text-red-700 text-base md:text-lg ml-4 whitespace-nowrap">
+                      <div
+                        className={`font-bold ${colors.text} text-base md:text-lg ml-4 whitespace-nowrap`}
+                      >
                         ₹{item.price}
                       </div>
                     </div>
@@ -145,7 +162,7 @@ export default function PriceList() {
         <div className="mt-6 text-center">
           <button
             onClick={() => window.print()}
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-colors print:hidden"
+            className={`${colors.button} text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-colors print:hidden`}
           >
             🖨️ Print Price List
           </button>
