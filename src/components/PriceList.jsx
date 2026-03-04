@@ -70,26 +70,87 @@ export default function PriceList() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br ${colors.bgGradient} py-8 px-4`}
+      className={`min-h-screen bg-gradient-to-br ${colors.bgGradient} py-4 md:py-8 px-3 md:px-6`}
     >
       <div className="max-w-6xl mx-auto">
-        {/* Header Section */}
-        <div
-          className={`bg-white rounded-lg shadow-lg p-6 mb-6 border-t-4 ${colors.border}`}
-        >
-          <h1
-            className={`text-3xl md:text-4xl font-bold text-center ${colors.text} mb-2`}
+        {/* Elegant Header Section */}
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-6 md:mb-8">
+          {/* Header Top with Gradient */}
+          <div
+            className={`bg-gradient-to-r ${colors.gradient} px-6 py-8 md:py-12 text-white relative overflow-hidden`}
           >
-            {BUSINESS_CONFIG.name}
-          </h1>
-          <div className="text-center text-gray-700 space-y-1">
-            <p className="text-sm md:text-base">{BUSINESS_CONFIG.address}</p>
-            <div className="flex flex-wrap justify-center gap-4 mt-2">
-              {BUSINESS_CONFIG.contacts.map((contact, index) => (
-                <p key={index} className="text-sm md:text-base font-semibold">
-                  {contact.name}:{" "}
-                  <span className="text-blue-600">{contact.phone}</span>
+            {/* Decorative circles */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
+
+            <div className="relative z-10">
+              <h1 className="text-3xl md:text-5xl font-bold text-center mb-3 tracking-tight">
+                {BUSINESS_CONFIG.name}
+              </h1>
+              <div className="flex items-center justify-center text-white/90 mb-4">
+                <svg
+                  className="w-4 h-4 md:w-5 md:h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <p className="text-sm md:text-base text-center">
+                  {BUSINESS_CONFIG.address}
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Information Cards */}
+          <div className="px-4 md:px-6 py-5 md:py-6 bg-gradient-to-b from-gray-50 to-white">
+            <div className="flex flex-wrap justify-center gap-3 md:gap-4">
+              {BUSINESS_CONFIG.contacts.map((contact, index) => (
+                <a
+                  key={index}
+                  href={`tel:${contact.phone}`}
+                  className={`flex items-center gap-2 px-4 md:px-6 py-3 bg-white rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 border ${colors.border} border-opacity-20 group`}
+                >
+                  <div
+                    className={`p-2 ${colors.categoryBg} bg-gradient-to-r rounded-lg`}
+                  >
+                    <svg
+                      className={`w-4 h-4 ${colors.text}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs text-gray-500 font-medium">
+                      {contact.name}
+                    </p>
+                    <p
+                      className={`text-sm md:text-base font-bold ${colors.text} group-hover:underline`}
+                    >
+                      {contact.phone}
+                    </p>
+                  </div>
+                </a>
               ))}
             </div>
           </div>
@@ -159,17 +220,30 @@ export default function PriceList() {
         </div>
 
         {/* Print Button */}
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center print:hidden">
           <button
             onClick={() => window.print()}
-            className={`${colors.button} text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-colors print:hidden`}
+            className={`${colors.button} text-white font-semibold py-3 md:py-4 px-8 md:px-10 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 mx-auto text-sm md:text-base`}
           >
-            🖨️ Print Price List
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+              />
+            </svg>
+            Print Price List
           </button>
         </div>
       </div>
 
-      {/* Print Styles */}
+      {/* Enhanced Print Styles */}
       <style>{`
         @media print {
           body {
@@ -178,6 +252,17 @@ export default function PriceList() {
           }
           .print\\:hidden {
             display: none !important;
+          }
+          /* Optimize for print */
+          .shadow-lg, .shadow-xl, .shadow-2xl {
+            box-shadow: none !important;
+          }
+        }
+        
+        /* Smooth scrolling for mobile */
+        @media (max-width: 768px) {
+          html {
+            scroll-behavior: smooth;
           }
         }
       `}</style>
