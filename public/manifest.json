@@ -1,7 +1,7 @@
 {
-  "name": "Uttam Masala Billing System",
+  "name": "Uttam Masala Price list",
   "short_name": "Uttam Masala",
-  "description": "Efficient billing and item management application for Uttam Masala",
+  "description": "Efficient price list application for Uttam Masala",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

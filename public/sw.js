@@ -1,4 +1,4 @@
-const CACHE_NAME = 'billing-app-v1';
+const CACHE_NAME = 'billing-app-v2'; // Updated version to clear old cache
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
@@ -41,30 +41,14 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // API requests - network first, fallback to cache
+    // API requests - always use network (no caching of dynamic data)
     if (request.url.includes('/api/')) {
-        event.respondWith(
-            fetch(request)
-                .then((response) => {
-                    // Clone the response before caching
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(request, responseClone);
-                    });
-                    return response;
-                })
-                .catch(() => {
-                    return caches.match(request).then((cachedResponse) => {
-                        return (
-                            cachedResponse ||
-                            new Response('Network error - please check your connection', {
-                                status: 503,
-                            })
-                        );
-                    });
-                })
-        );
-    } else {
+        event.respondWith(fetch(request));
+        return;
+    }
+
+    // Static assets - cache first, fallback to network
+    if (true) {
         // Static assets - cache first, fallback to network
         event.respondWith(
             caches.match(request).then((cachedResponse) => {
