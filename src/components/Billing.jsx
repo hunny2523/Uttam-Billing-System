@@ -9,6 +9,7 @@ import {
   generatePOSPrinterData,
   printWithBrowserDialog,
 } from "../utils/printer";
+import { createWhatsAppBillMessage } from "../utils/helper";
 import BillingItemInput from "./BillingItemInput";
 import BillingItemsList from "./BillingItemsList";
 import BillingCustomerInfo from "./BillingCustomerInfo";
@@ -217,8 +218,14 @@ export default function Billing() {
             phoneNumber: response.bill.phoneNumber,
           };
           setLastBillData(printData);
-          // Open WhatsApp with pre-filled message
-          const message = `Hello ${customerName || "Customer"},\n\nThank you for your purchase!\n\nBill #${response.bill.billNumber}\nTotal: ₹${finalTotal.toFixed(2)}\n\nItems:\n${items.map((item, index) => `${index + 1}. ${item.name} - ${item.weight}kg @ ₹${item.price}/kg = ₹${item.total.toFixed(2)}`).join("\n")}\n\nThank you for your business!`;
+
+          // Create beautiful WhatsApp message using helper function
+          const message = createWhatsAppBillMessage({
+            items: response.bill.items || items,
+            total: response.bill.total || finalTotal,
+            billNumber: response.bill.billNumber,
+            customerName: response.bill.customerName || customerName,
+          });
 
           const encodedMessage = encodeURIComponent(message);
           const whatsappUrl = `https://wa.me/91${phoneNumber}?text=${encodedMessage}`;
