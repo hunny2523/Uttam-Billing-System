@@ -65,7 +65,14 @@ export default function Billing() {
     const total = parseFloat(price) * parseFloat(weight);
     setItems([
       ...items,
-      { name: selectedItem?.label ?? "", price, weight, total },
+      {
+        name: selectedItem?.label ?? "",
+        price,
+        weight,
+        total,
+        labelGujarati: selectedItem?.labelGujarati,
+        labelEnglish: selectedItem?.labelEnglish,
+      },
     ]);
     setPrice("");
     setWeight("");
