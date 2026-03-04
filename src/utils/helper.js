@@ -9,7 +9,7 @@ import { BUSINESS_CONFIG } from '../config/business';
  * @param {string} params.customerName - Customer name (optional)
  * @returns {string} Formatted WhatsApp message
  */
-export const createWhatsAppBillMessage = ({
+export const createSimpleWhatsAppBillMessage = ({
     items,
     total,
     billNumber,
@@ -17,60 +17,43 @@ export const createWhatsAppBillMessage = ({
 }) => {
     const lines = [];
 
-    // Header with business name
-    lines.push('╔═══════════════════════╗');
-    lines.push(`║  *${BUSINESS_CONFIG.fullName}*  ║`);
-    lines.push('╚═══════════════════════╝');
-    lines.push('');
-
-    // Contact information
-    lines.push(`📍 ${BUSINESS_CONFIG.address}`);
+    // Business Name
+    lines.push(`*${BUSINESS_CONFIG.fullName}*`);
+    lines.push(`${BUSINESS_CONFIG.address}`);
     lines.push(`📞 ${BUSINESS_CONFIG.phone}`);
     lines.push('');
-    lines.push('━━━━━━━━━━━━━━━━━━━━━');
+
+    lines.push('----------------------------');
     lines.push('');
 
-    // Customer name if available
     if (customerName) {
-        lines.push(`👤 *Customer:* ${customerName}`);
+        lines.push(`👤 Customer: *${customerName}*`);
         lines.push('');
     }
 
-    // Bill number
-    lines.push(`🧾 *Bill #${billNumber}*`);
+    lines.push(`🧾 Bill No: *${billNumber}*`);
     lines.push('');
-    lines.push('━━━━━━━━━━━━━━━━━━━━━');
-    lines.push('');
-
-    // Items header
-    lines.push('*ITEMS:*');
+    lines.push('*Items:*');
     lines.push('');
 
-    // Items list with numbering
     items.forEach((item, index) => {
         const itemName = item.name || item.labelEnglish || '-';
         const weight = item.weight || 0;
         const price = item.price || 0;
         const itemTotal = item.total || 0;
 
-        lines.push(`${index + 1}. *${itemName}*`);
-        lines.push(`   ${weight}kg × ₹${price}/kg = *₹${itemTotal.toFixed(2)}*`);
-        lines.push('');
+        lines.push(
+            `${index + 1}. ${itemName} - ${weight}kg × ₹${price} = ₹${itemTotal.toFixed(2)}`
+        );
     });
 
-    lines.push('━━━━━━━━━━━━━━━━━━━━━');
     lines.push('');
-
-    // Total
-    lines.push(`💰 *TOTAL: ₹${total.toFixed(2)}*`);
+    lines.push('----------------------------');
     lines.push('');
-    lines.push('━━━━━━━━━━━━━━━━━━━━━');
+    lines.push(`💰 *Total: ₹${total.toFixed(2)}*`);
     lines.push('');
-
-    // Thank you message
-    lines.push('🙏 *Thank you!*');
-    lines.push('');
-    lines.push('Visit us again! 😊');
+    lines.push('🙏 Thank you for your business!');
+    lines.push('CP Spices 🌶️');
 
     return lines.join('\n');
 };
