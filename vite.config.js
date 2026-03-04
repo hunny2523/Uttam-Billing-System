@@ -73,9 +73,9 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: 'Uttam Masala Billing System',
-        short_name: 'Uttam Masala',
-        description: 'Efficient billing and item management application for Uttam Masala',
+        name: 'Price List',
+        short_name: process.env.VITE_BUSINESS_SHORT_NAME || 'Uttam Masala',
+        description: `Browse our complete product catalog and current prices - ${process.env.VITE_BUSINESS_FULL_NAME || 'Uttam Masala'}`,
         theme_color: '#1f2937',
         background_color: '#ffffff',
         display: 'standalone',

@@ -30,7 +30,7 @@ export const BUSINESS_CONFIG = {
     name: import.meta.env.VITE_BUSINESS_NAME || 'Uttam Masala',
     fullName: import.meta.env.VITE_BUSINESS_FULL_NAME || 'Uttam Masala',
     shortName: import.meta.env.VITE_BUSINESS_SHORT_NAME || 'Uttam Masala',
-    description: import.meta.env.VITE_BUSINESS_DESCRIPTION || 'Efficient billing and item management application',
+    description: import.meta.env.VITE_BUSINESS_DESCRIPTION || '`Browse our complete product catalog and current prices',
     address: import.meta.env.VITE_BUSINESS_ADDRESS || 'Ahmedabad–Kalol Highway, Shertha, Gandhinagar – 382423',
 
     // Contact Information - Array of contacts (guaranteed to be an array)
