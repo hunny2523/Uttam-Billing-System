@@ -10,6 +10,11 @@ export default function PriceList() {
   // Get color scheme based on theme color
   const colors = getColorScheme(BUSINESS_CONFIG.themeColor);
 
+  // Determine logo based on business name
+  const businessLogo = BUSINESS_CONFIG.name?.toLowerCase().includes("cp spices")
+    ? "/cp-spices.png"
+    : "/uttam-masala.png";
+
   const fetchItems = useCallback(async () => {
     try {
       setLoading(true);
@@ -100,17 +105,26 @@ export default function PriceList() {
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-6 md:mb-8">
           {/* Header Top with Gradient */}
           <div
-            className={`bg-gradient-to-r ${colors.gradient} px-6 py-8 md:py-12 text-white relative overflow-hidden`}
+            className={`bg-gradient-to-r ${colors.gradient} px-6 py-4 md:py-6 text-white relative overflow-hidden`}
           >
             {/* Decorative circles */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
 
             <div className="relative z-10">
-              <h1 className="text-3xl md:text-5xl font-bold text-center mb-3 tracking-tight">
-                {BUSINESS_CONFIG.name}
-              </h1>
-              <div className="flex items-center justify-center text-white/90 mb-4">
+              {/* Business Logo and Name in Row */}
+              <div className="flex items-center justify-center gap-3 md:gap-4 mb-3">
+                <img
+                  src={businessLogo}
+                  alt={BUSINESS_CONFIG.name}
+                  className="h-12 w-12 md:h-16 md:w-16 object-contain rounded-lg bg-white/10 p-2 backdrop-blur-sm shadow-lg flex-shrink-0"
+                />
+                <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+                  {BUSINESS_CONFIG.name}
+                </h1>
+              </div>
+
+              <div className="flex items-center justify-center text-white/90">
                 <svg
                   className="w-4 h-4 md:w-5 md:h-5 mr-2"
                   fill="none"

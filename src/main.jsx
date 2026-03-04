@@ -8,6 +8,31 @@ import { BUSINESS_CONFIG } from "./config/business.js";
 // Update document title dynamically
 document.title = `${BUSINESS_CONFIG.fullName} - Billing System`;
 
+// Update favicon and app icons based on business name
+const updateFavicons = () => {
+  const isCPSpices = BUSINESS_CONFIG.name?.toLowerCase().includes("cp spices");
+  const iconPath = isCPSpices ? "/cp-spices.png" : "/uttam-masala.png";
+
+  // Update regular favicon
+  let favicon = document.querySelector("link[rel='icon']");
+  if (favicon) {
+    favicon.href = iconPath;
+  } else {
+    favicon = document.createElement("link");
+    favicon.rel = "icon";
+    favicon.href = iconPath;
+    document.head.appendChild(favicon);
+  }
+
+  // Update apple-touch-icon
+  let appleTouchIcon = document.querySelector("link[rel='apple-touch-icon']");
+  if (appleTouchIcon) {
+    appleTouchIcon.href = iconPath;
+  }
+};
+
+updateFavicons();
+
 // Register Service Worker for PWA
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
