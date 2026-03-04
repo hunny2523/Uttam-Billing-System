@@ -3,9 +3,44 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Plugin to inject environment variables into HTML
+function htmlEnvPlugin() {
+  return {
+    name: 'html-transform',
+    transformIndexHtml(html) {
+      const businessName = process.env.VITE_BUSINESS_NAME || 'Uttam Masala';
+      const businessFullName = process.env.VITE_BUSINESS_FULL_NAME || 'Uttam Masala';
+      const description = `Browse our complete product catalog and current prices - ${businessFullName}`;
+      const title = `${businessFullName} - Price List`;
+
+      // Get the site URL from environment or use a default
+      const siteUrl = process.env.VITE_SITE_URL || 'https://uttam-masala-price-list.netlify.app';
+
+      // Determine which logo to use
+      const isCPSpices = businessName.toLowerCase().includes('cp spices');
+      const logoPath = isCPSpices ? '/cp-spices.png' : '/uttam-masala.png';
+      const logoUrl = `${siteUrl}${logoPath}`;
+
+      return html
+        .replace(/<meta name="apple-mobile-web-app-title" content="[^"]*"/, `<meta name="apple-mobile-web-app-title" content="${businessFullName}"`)
+        .replace(/<meta name="description" content="[^"]*"/, `<meta name="description" content="${description}"`)
+        .replace(/<meta property="og:url" content="[^"]*"/, `<meta property="og:url" content="${siteUrl}"`)
+        .replace(/<meta property="og:title" content="[^"]*"/, `<meta property="og:title" content="${title}"`)
+        .replace(/<meta property="og:description" content="[^"]*"/, `<meta property="og:description" content="${description}"`)
+        .replace(/<meta property="og:image" content="[^"]*"/, `<meta property="og:image" content="${logoUrl}"`)
+        .replace(/<meta property="twitter:url" content="[^"]*"/, `<meta property="twitter:url" content="${siteUrl}"`)
+        .replace(/<meta property="twitter:title" content="[^"]*"/, `<meta property="twitter:title" content="${title}"`)
+        .replace(/<meta property="twitter:description" content="[^"]*"/, `<meta property="twitter:description" content="${description}"`)
+        .replace(/<meta property="twitter:image" content="[^"]*"/, `<meta property="twitter:image" content="${logoUrl}"`)
+        .replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`);
+    },
+  };
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    htmlEnvPlugin(),
     react(),
     tailwindcss(),
     VitePWA({
