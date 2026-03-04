@@ -13,6 +13,12 @@ export const updateItemPrice = async (id, price) => {
     return response.data;
 };
 
+// Update item (admin only)
+export const updateItem = async (id, itemData) => {
+    const response = await api.patch(`/items/${id}`, itemData);
+    return response.data;
+};
+
 // Create new item (admin only)
 export const createItem = async (itemData) => {
     const response = await api.post('/items', itemData);

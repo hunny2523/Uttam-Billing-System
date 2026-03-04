@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import CreatableSelect from "react-select/creatable";
 import {
   getItems,
-  updateItemPrice,
+  updateItem,
   createItem,
   toggleItemStatus,
 } from "../services/itemService";
@@ -13,9 +14,11 @@ import { Button } from "./Button";
 
 export default function ItemsManagement() {
   const [isAddingItem, setIsAddingItem] = useState(false);
-  const [editingItemId, setEditingItemId] = useState(null);
-  const [editPrice, setEditPrice] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [categoryGujaratiOptions, setCategoryGujaratiOptions] = useState([]);
 
   // New item form state
   const [newItem, setNewItem] = useState({
@@ -23,6 +26,8 @@ export default function ItemsManagement() {
     labelEnglish: "",
     value: "",
     price: "",
+    category: "",
+    categoryGujarati: "",
   });
 
   const queryClient = useQueryClient();
@@ -36,17 +41,50 @@ export default function ItemsManagement() {
 
   const items = data?.items || [];
 
-  // Update item price mutation
-  const updatePriceMutation = useMutation({
-    mutationFn: ({ id, price }) => updateItemPrice(id, price),
+  // Extract unique categories from items for dropdown options
+  useEffect(() => {
+    if (items.length > 0) {
+      // Get unique English categories
+      const uniqueCategories = [
+        ...new Set(
+          items
+            .map((item) => item.category)
+            .filter((cat) => cat && cat.trim() !== ""),
+        ),
+      ];
+      const categoryOpts = uniqueCategories.map((cat) => ({
+        label: cat,
+        value: cat,
+      }));
+      setCategoryOptions(categoryOpts);
+
+      // Get unique Gujarati categories
+      const uniqueCategoriesGujarati = [
+        ...new Set(
+          items
+            .map((item) => item.categoryGujarati)
+            .filter((cat) => cat && cat.trim() !== ""),
+        ),
+      ];
+      const categoryGujaratiOpts = uniqueCategoriesGujarati.map((cat) => ({
+        label: cat,
+        value: cat,
+      }));
+      setCategoryGujaratiOptions(categoryGujaratiOpts);
+    }
+  }, [items]);
+
+  // Update item mutation
+  const updateItemMutation = useMutation({
+    mutationFn: ({ id, itemData }) => updateItem(id, itemData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
-      toast.success("Price updated successfully!");
-      setEditingItemId(null);
-      setEditPrice("");
+      toast.success("Item updated successfully!");
+      setIsEditDialogOpen(false);
+      setEditingItem(null);
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to update price");
+      toast.error(error.response?.data?.message || "Failed to update item");
     },
   });
 
@@ -57,7 +95,14 @@ export default function ItemsManagement() {
       queryClient.invalidateQueries({ queryKey: ["items"] });
       toast.success("Item created successfully!");
       setIsAddingItem(false);
-      setNewItem({ labelGujarati: "", labelEnglish: "", value: "", price: "" });
+      setNewItem({
+        labelGujarati: "",
+        labelEnglish: "",
+        value: "",
+        price: "",
+        category: "",
+        categoryGujarati: "",
+      });
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to create item");
@@ -70,29 +115,130 @@ export default function ItemsManagement() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["items"] });
       toast.success(data.message || "Item status updated!");
+      setIsEditDialogOpen(false);
+      setEditingItem(null);
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to toggle status");
     },
   });
 
-  const handleEditPrice = (item) => {
-    setEditingItemId(item.id);
-    setEditPrice(item.price.toString());
+  const handleRowClick = (item) => {
+    setEditingItem({
+      id: item.id,
+      labelGujarati: item.labelGujarati,
+      labelEnglish: item.labelEnglish,
+      value: item.value,
+      price: item.price.toString(),
+      category: item.category || "",
+      categoryGujarati: item.categoryGujarati || "",
+      isActive: item.isActive,
+    });
+    setIsEditDialogOpen(true);
   };
 
-  const handleSavePrice = (itemId) => {
-    const price = parseFloat(editPrice);
+  const handleCloseDialog = () => {
+    setIsEditDialogOpen(false);
+    setEditingItem(null);
+  };
+
+  const handleSaveItem = (e) => {
+    e.preventDefault();
+
+    if (!editingItem.labelEnglish || !editingItem.value || !editingItem.price) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const price = parseFloat(editingItem.price);
     if (isNaN(price) || price <= 0) {
       toast.error("Please enter a valid price");
       return;
     }
-    updatePriceMutation.mutate({ id: itemId, price });
+
+    updateItemMutation.mutate({
+      id: editingItem.id,
+      itemData: {
+        labelGujarati: editingItem.labelGujarati,
+        labelEnglish: editingItem.labelEnglish,
+        value: editingItem.value,
+        price,
+        category: editingItem.category || null,
+        categoryGujarati: editingItem.categoryGujarati || null,
+      },
+    });
   };
 
-  const handleCancelEdit = () => {
-    setEditingItemId(null);
-    setEditPrice("");
+  const handleToggleStatus = () => {
+    if (editingItem) {
+      toggleStatusMutation.mutate(editingItem.id);
+    }
+  };
+
+  // Handle category selection/creation
+  const handleCategoryChange = (newValue) => {
+    setEditingItem({
+      ...editingItem,
+      category: newValue ? newValue.value : "",
+    });
+  };
+
+  const handleCategoryCreate = (inputValue) => {
+    const newCategory = { label: inputValue, value: inputValue };
+    setCategoryOptions([...categoryOptions, newCategory]);
+    setEditingItem({
+      ...editingItem,
+      category: inputValue,
+    });
+  };
+
+  const handleCategoryGujaratiChange = (newValue) => {
+    setEditingItem({
+      ...editingItem,
+      categoryGujarati: newValue ? newValue.value : "",
+    });
+  };
+
+  const handleCategoryGujaratiCreate = (inputValue) => {
+    const newCategory = { label: inputValue, value: inputValue };
+    setCategoryGujaratiOptions([...categoryGujaratiOptions, newCategory]);
+    setEditingItem({
+      ...editingItem,
+      categoryGujarati: inputValue,
+    });
+  };
+
+  // Handle category selection/creation for new item
+  const handleNewItemCategoryChange = (newValue) => {
+    setNewItem({
+      ...newItem,
+      category: newValue ? newValue.value : "",
+    });
+  };
+
+  const handleNewItemCategoryCreate = (inputValue) => {
+    const newCategory = { label: inputValue, value: inputValue };
+    setCategoryOptions([...categoryOptions, newCategory]);
+    setNewItem({
+      ...newItem,
+      category: inputValue,
+    });
+  };
+
+  const handleNewItemCategoryGujaratiChange = (newValue) => {
+    setNewItem({
+      ...newItem,
+      categoryGujarati: newValue ? newValue.value : "",
+    });
+  };
+
+  const handleNewItemCategoryGujaratiCreate = (inputValue) => {
+    const newCategory = { label: inputValue, value: inputValue };
+    setCategoryGujaratiOptions([...categoryGujaratiOptions, newCategory]);
+    setNewItem({
+      ...newItem,
+      categoryGujarati: inputValue,
+    });
   };
 
   const handleCreateItem = (e) => {
@@ -112,11 +258,9 @@ export default function ItemsManagement() {
     createItemMutation.mutate({
       ...newItem,
       price,
+      category: newItem.category || null,
+      categoryGujarati: newItem.categoryGujarati || null,
     });
-  };
-
-  const handleToggleStatus = (itemId) => {
-    toggleStatusMutation.mutate(itemId);
   };
 
   // Filter items based on search term
@@ -124,7 +268,7 @@ export default function ItemsManagement() {
     (item) =>
       item.labelGujarati.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.labelEnglish.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.value.toLowerCase().includes(searchTerm.toLowerCase())
+      item.value.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   if (isLoading) {
@@ -178,107 +322,6 @@ export default function ItemsManagement() {
             />
           </div>
 
-          {/* Add Item Form */}
-          {isAddingItem && (
-            <Card className="mb-6 bg-green-50">
-              <CardContent className="p-2">
-                <h3 className="text-lg font-semibold mb-4">Add New Item</h3>
-                <form onSubmit={handleCreateItem} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Gujarati Label <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        type="text"
-                        value={newItem.labelGujarati}
-                        onChange={(e) =>
-                          setNewItem({
-                            ...newItem,
-                            labelGujarati: e.target.value,
-                          })
-                        }
-                        placeholder="ગુજરાતી નામ"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        English Label <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        type="text"
-                        value={newItem.labelEnglish}
-                        onChange={(e) =>
-                          setNewItem({
-                            ...newItem,
-                            labelEnglish: e.target.value,
-                          })
-                        }
-                        placeholder="English Name"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Value/Code <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        type="text"
-                        value={newItem.value}
-                        onChange={(e) =>
-                          setNewItem({ ...newItem, value: e.target.value })
-                        }
-                        placeholder="e.g., laal_marchu"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">
-                        Price (₹) <span className="text-red-500">*</span>
-                      </label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={newItem.price}
-                        onChange={(e) =>
-                          setNewItem({ ...newItem, price: e.target.value })
-                        }
-                        placeholder="0.00"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-2 justify-end">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setIsAddingItem(false);
-                        setNewItem({
-                          labelGujarati: "",
-                          labelEnglish: "",
-                          value: "",
-                          price: "",
-                        });
-                      }}
-                      className="bg-gray-500 hover:bg-gray-600"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={createItemMutation.isPending}
-                    >
-                      {createItemMutation.isPending
-                        ? "Creating..."
-                        : "Create Item"}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Items Count */}
           <div className="mb-4 text-sm text-gray-600">
             Showing {filteredItems.length} of {items.length} items
@@ -304,16 +347,13 @@ export default function ItemsManagement() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredItems.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="6"
+                      colSpan="5"
                       className="px-4 py-8 text-center text-gray-500"
                     >
                       No items found
@@ -323,7 +363,10 @@ export default function ItemsManagement() {
                   filteredItems.map((item) => (
                     <tr
                       key={item.id}
-                      className={!item.isActive ? "bg-gray-100" : ""}
+                      onClick={() => handleRowClick(item)}
+                      className={`cursor-pointer transition-colors hover:bg-blue-50 ${
+                        !item.isActive ? "bg-gray-100" : ""
+                      }`}
                     >
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
                         {item.labelGujarati}
@@ -335,20 +378,9 @@ export default function ItemsManagement() {
                         {item.value}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
-                        {editingItemId === item.id ? (
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={editPrice}
-                            onChange={(e) => setEditPrice(e.target.value)}
-                            className="w-24"
-                            autoFocus
-                          />
-                        ) : (
-                          <span className="font-semibold">
-                            ₹{item.price.toFixed(2)}
-                          </span>
-                        )}
+                        <span className="font-semibold">
+                          ₹{item.price.toFixed(2)}
+                        </span>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span
@@ -361,49 +393,6 @@ export default function ItemsManagement() {
                           {item.isActive ? "Active" : "Inactive"}
                         </span>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex gap-2 justify-end">
-                          {editingItemId === item.id ? (
-                            <>
-                              <button
-                                onClick={() => handleSavePrice(item.id)}
-                                disabled={updatePriceMutation.isPending}
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                ✓
-                              </button>
-                              <button
-                                onClick={handleCancelEdit}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                ✕
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() => handleEditPrice(item)}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                ✏️ Edit
-                              </button>
-                              <button
-                                onClick={() => handleToggleStatus(item.id)}
-                                disabled={toggleStatusMutation.isPending}
-                                className={`${
-                                  item.isActive
-                                    ? "text-red-600 hover:text-red-900"
-                                    : "text-green-600 hover:text-green-900"
-                                }`}
-                              >
-                                {item.isActive
-                                  ? "🚫 Deactivate"
-                                  : "✅ Activate"}
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
                     </tr>
                   ))
                 )}
@@ -412,6 +401,356 @@ export default function ItemsManagement() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Item Dialog */}
+      {isEditDialogOpen && editingItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">Edit Item</h2>
+                <button
+                  onClick={handleCloseDialog}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveItem} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Gujarati Label <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      value={editingItem.labelGujarati}
+                      onChange={(e) =>
+                        setEditingItem({
+                          ...editingItem,
+                          labelGujarati: e.target.value,
+                        })
+                      }
+                      placeholder="ગુજરાતી નામ"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      English Label <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      value={editingItem.labelEnglish}
+                      onChange={(e) =>
+                        setEditingItem({
+                          ...editingItem,
+                          labelEnglish: e.target.value,
+                        })
+                      }
+                      placeholder="English Name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Value/Code <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      value={editingItem.value}
+                      onChange={(e) =>
+                        setEditingItem({
+                          ...editingItem,
+                          value: e.target.value,
+                        })
+                      }
+                      placeholder="e.g., laal_marchu"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Price (₹) <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={editingItem.price}
+                      onChange={(e) =>
+                        setEditingItem({
+                          ...editingItem,
+                          price: e.target.value,
+                        })
+                      }
+                      placeholder="0.00"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Category (Gujarati)
+                    </label>
+                    <CreatableSelect
+                      value={
+                        editingItem.categoryGujarati
+                          ? {
+                              label: editingItem.categoryGujarati,
+                              value: editingItem.categoryGujarati,
+                            }
+                          : null
+                      }
+                      onChange={handleCategoryGujaratiChange}
+                      onCreateOption={handleCategoryGujaratiCreate}
+                      options={categoryGujaratiOptions}
+                      placeholder="કેટેગરી પસંદ કરો અથવા બનાવો"
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Category (English)
+                    </label>
+                    <CreatableSelect
+                      value={
+                        editingItem.category
+                          ? {
+                              label: editingItem.category,
+                              value: editingItem.category,
+                            }
+                          : null
+                      }
+                      onChange={handleCategoryChange}
+                      onCreateOption={handleCategoryCreate}
+                      options={categoryOptions}
+                      placeholder="Select or create category"
+                      isClearable
+                    />
+                  </div>
+                </div>
+
+                {/* Status Display */}
+                <div className="pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">
+                        Current Status:{" "}
+                      </span>
+                      <span
+                        className={`ml-2 px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          editingItem.isActive
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {editingItem.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={handleToggleStatus}
+                      disabled={toggleStatusMutation.isPending}
+                      className={`${
+                        editingItem.isActive
+                          ? "bg-red-600 hover:bg-red-700"
+                          : "bg-green-600 hover:bg-green-700"
+                      }`}
+                    >
+                      {toggleStatusMutation.isPending
+                        ? "Updating..."
+                        : editingItem.isActive
+                          ? "🚫 Deactivate"
+                          : "✅ Activate"}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 justify-end pt-4">
+                  <Button
+                    type="button"
+                    onClick={handleCloseDialog}
+                    className="bg-gray-500 hover:bg-gray-600"
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={updateItemMutation.isPending}>
+                    {updateItemMutation.isPending
+                      ? "Saving..."
+                      : "💾 Save Changes"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Add Item Dialog */}
+      {isAddingItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Add New Item
+                </h2>
+                <button
+                  onClick={() => {
+                    setIsAddingItem(false);
+                    setNewItem({
+                      labelGujarati: "",
+                      labelEnglish: "",
+                      value: "",
+                      price: "",
+                      category: "",
+                      categoryGujarati: "",
+                    });
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateItem} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Gujarati Label <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      value={newItem.labelGujarati}
+                      onChange={(e) =>
+                        setNewItem({
+                          ...newItem,
+                          labelGujarati: e.target.value,
+                        })
+                      }
+                      placeholder="ગુજરાતી નામ"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      English Label <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      value={newItem.labelEnglish}
+                      onChange={(e) =>
+                        setNewItem({
+                          ...newItem,
+                          labelEnglish: e.target.value,
+                        })
+                      }
+                      placeholder="English Name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Value/Code <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      value={newItem.value}
+                      onChange={(e) =>
+                        setNewItem({ ...newItem, value: e.target.value })
+                      }
+                      placeholder="e.g., laal_marchu"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Price (₹) <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={newItem.price}
+                      onChange={(e) =>
+                        setNewItem({ ...newItem, price: e.target.value })
+                      }
+                      placeholder="0.00"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Category (Gujarati)
+                    </label>
+                    <CreatableSelect
+                      value={
+                        newItem.categoryGujarati
+                          ? {
+                              label: newItem.categoryGujarati,
+                              value: newItem.categoryGujarati,
+                            }
+                          : null
+                      }
+                      onChange={handleNewItemCategoryGujaratiChange}
+                      onCreateOption={handleNewItemCategoryGujaratiCreate}
+                      options={categoryGujaratiOptions}
+                      placeholder="કેટેગરી પસંદ કરો અથવા બનાવો"
+                      isClearable
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">
+                      Category (English)
+                    </label>
+                    <CreatableSelect
+                      value={
+                        newItem.category
+                          ? {
+                              label: newItem.category,
+                              value: newItem.category,
+                            }
+                          : null
+                      }
+                      onChange={handleNewItemCategoryChange}
+                      onCreateOption={handleNewItemCategoryCreate}
+                      options={categoryOptions}
+                      placeholder="Select or create category"
+                      isClearable
+                    />
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3 justify-end pt-4">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setIsAddingItem(false);
+                      setNewItem({
+                        labelGujarati: "",
+                        labelEnglish: "",
+                        value: "",
+                        price: "",
+                        category: "",
+                        categoryGujarati: "",
+                      });
+                    }}
+                    className="bg-gray-500 hover:bg-gray-600"
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={createItemMutation.isPending}>
+                    {createItemMutation.isPending
+                      ? "Creating..."
+                      : "➕ Create Item"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
