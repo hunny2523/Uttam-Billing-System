@@ -1,90 +1,27 @@
-const CACHE_NAME = 'billing-app-v1';
-const ASSETS_TO_CACHE = [
-    '/',
-    '/index.html',
-];
+// Minimal service worker for PWA installability only
+// No caching - all requests go directly to the network
 
-// Install event - cache assets
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE).catch((err) => {
-                console.log('Cache addAll error:', err);
-            });
-        })
-    );
+    // Skip waiting to activate immediately
     self.skipWaiting();
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+    // Clear all caches if any exist
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
+                cacheNames.map((cacheName) => caches.delete(cacheName))
             );
         })
     );
+    // Claim clients to take control immediately
     self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - always use network, no caching
 self.addEventListener('fetch', (event) => {
-    const { request } = event;
-
-    // Skip cross-origin requests
-    if (!request.url.startsWith(self.location.origin)) {
-        return;
-    }
-
-    // API requests - network first, fallback to cache
-    if (request.url.includes('/api/')) {
-        event.respondWith(
-            fetch(request)
-                .then((response) => {
-                    // Clone the response before caching
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(request, responseClone);
-                    });
-                    return response;
-                })
-                .catch(() => {
-                    return caches.match(request).then((cachedResponse) => {
-                        return (
-                            cachedResponse ||
-                            new Response('Network error - please check your connection', {
-                                status: 503,
-                            })
-                        );
-                    });
-                })
-        );
-    } else {
-        // Static assets - cache first, fallback to network
-        event.respondWith(
-            caches.match(request).then((cachedResponse) => {
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-                return fetch(request)
-                    .then((response) => {
-                        const responseClone = response.clone();
-                        caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(request, responseClone);
-                        });
-                        return response;
-                    })
-                    .catch(() => {
-                        return new Response('Offline - resource not available', {
-                            status: 503,
-                        });
-                    });
-            })
-        );
-    }
+    // Pass through all requests to the network
+    // No caching logic - just fetch from network
+    event.respondWith(fetch(event.request));
 });

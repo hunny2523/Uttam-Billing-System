@@ -10,33 +10,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,txt,woff,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\./,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 5 * 60, // 5 minutes
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\//,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'https-cache',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 24 * 60 * 60, // 24 hours
-              },
-            },
-          },
-        ],
-      },
+      injectRegister: false,
+      strategies: 'injectManifest',
+      srcDir: 'public',
+      filename: 'sw.js',
       manifest: {
         name: 'Uttam Masala Billing System',
         short_name: 'Uttam Masala',
