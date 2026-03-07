@@ -94,36 +94,13 @@ const updateFavicons = () => {
 updateMetaTags();
 updateFavicons();
 
-// Register Service Worker for PWA
+// Register Service Worker for PWA (install capability only, no caching)
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/sw.js")
       .then((registration) => {
-        console.log("Service Worker registered:", registration);
-
-        // Check for updates periodically
-        setInterval(() => {
-          registration.update();
-        }, 60000); // Check every minute
-
-        // Listen for updates
-        registration.addEventListener("updatefound", () => {
-          const newWorker = registration.installing;
-          newWorker.addEventListener("statechange", () => {
-            if (
-              newWorker.state === "installed" &&
-              navigator.serviceWorker.controller
-            ) {
-              // New service worker available
-              toast.info("App update available! Please refresh.", {
-                position: "top-right",
-                autoClose: false,
-                closeButton: true,
-              });
-            }
-          });
-        });
+        console.log("Service Worker registered for PWA install:", registration);
       })
       .catch((error) => {
         console.log("Service Worker registration failed:", error);
