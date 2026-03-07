@@ -103,6 +103,9 @@ export default function Billing() {
       return;
     }
 
+    // Check if automatic WhatsApp is enabled in settings
+    const whatsappEnabled = localStorage.getItem("whatsappEnabled") === "true";
+
     // Prepare bill data
     const billData = {
       items,
@@ -110,6 +113,7 @@ export default function Billing() {
       phoneNumber: phoneNumber || null,
       customerName: customerName || null,
       timestamp: new Date().toISOString(),
+      whatsappEnabled, // Pass WhatsApp setting to backend
     };
 
     // Use mutation to create bill
@@ -151,7 +155,7 @@ export default function Billing() {
           } catch (printError) {
             console.error("Print error:", printError);
             toast.warning(
-              "Bill saved but print failed. Check printer connection."
+              "Bill saved but print failed. Check printer connection.",
             );
             // Still clear the form even if print fails
             clearBill();
