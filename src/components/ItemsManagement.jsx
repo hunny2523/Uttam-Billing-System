@@ -354,9 +354,7 @@ export default function ItemsManagement() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     English Name
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Value
-                  </th>
+
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Price (₹)
                   </th>
@@ -384,15 +382,13 @@ export default function ItemsManagement() {
                         !item.isActive ? "bg-gray-100" : ""
                       }`}
                     >
-                      <td className="px-4 py-4 whitespace-nowrap text-sm">
+                      <td className="px-4 py-4 whitespace-nowrap text-sm text-blue-800 underline">
                         {item.labelGujarati}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
                         {item.labelEnglish}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {item.value}
-                      </td>
+
                       <td className="px-4 py-4 whitespace-nowrap text-sm">
                         <span className="font-semibold">
                           ₹{item.price.toFixed(2)}
