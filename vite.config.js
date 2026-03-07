@@ -10,10 +10,14 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: false,
       strategies: 'injectManifest',
       srcDir: 'public',
       filename: 'sw.js',
+      injectManifest: {
+        globPatterns: [],
+        injectionPoint: undefined,
+      },
+      injectRegister: 'auto',
       manifest: {
         name: 'Uttam Masala Billing System',
         short_name: 'Uttam Masala',

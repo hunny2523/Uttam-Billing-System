@@ -1,13 +1,12 @@
 // Minimal service worker for PWA installability only
 // No caching - all requests go directly to the network
 
+/* eslint-disable no-undef */
 self.addEventListener('install', (event) => {
-    // Skip waiting to activate immediately
     self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-    // Clear all caches if any exist
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
@@ -15,13 +14,8 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
-    // Claim clients to take control immediately
     self.clients.claim();
 });
 
-// Fetch event - always use network, no caching
-self.addEventListener('fetch', (event) => {
-    // Pass through all requests to the network
-    // No caching logic - just fetch from network
-    event.respondWith(fetch(event.request));
-});
+// No fetch handler - let browser handle all requests normally
+// This allows the app to work but doesn't cache anything
