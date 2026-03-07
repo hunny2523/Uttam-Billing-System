@@ -10,37 +10,18 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,txt,woff,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\./,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 5 * 60, // 5 minutes
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\//,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'https-cache',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 24 * 60 * 60, // 24 hours
-              },
-            },
-          },
-        ],
+      strategies: 'injectManifest',
+      srcDir: 'public',
+      filename: 'sw.js',
+      injectManifest: {
+        globPatterns: [],
+        injectionPoint: undefined,
       },
+      injectRegister: 'auto',
       manifest: {
-        name: 'CP Spices Billing System',
-        short_name: 'CP Spices',
-        description: 'Efficient billing and item management application for CP Spices',
+        name: 'Uttam Masala Billing System',
+        short_name: 'Uttam Masala',
+        description: 'Efficient billing and item management application for Uttam Masala',
         theme_color: '#1f2937',
         background_color: '#ffffff',
         display: 'standalone',

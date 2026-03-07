@@ -9,6 +9,7 @@ import {
   generatePOSPrinterData,
   printWithBrowserDialog,
 } from "../utils/printer";
+import { createWhatsAppBillMessage } from "../utils/helper";
 import BillingItemInput from "./BillingItemInput";
 import BillingItemsList from "./BillingItemsList";
 import BillingCustomerInfo from "./BillingCustomerInfo";
@@ -22,7 +23,6 @@ export default function Billing() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [errors, setErrors] = useState({});
-  const [currentBillNumber, setCurrentBillNumber] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [lastBillData, setLastBillData] = useState(null); // Store last bill for reprinting
 
@@ -66,7 +66,14 @@ export default function Billing() {
     const total = parseFloat(price) * parseFloat(weight);
     setItems([
       ...items,
-      { name: selectedItem?.label ?? "", price, weight, total },
+      {
+        name: selectedItem?.label ?? "",
+        price,
+        weight,
+        total,
+        labelGujarati: selectedItem?.labelGujarati,
+        labelEnglish: selectedItem?.labelEnglish,
+      },
     ]);
     setPrice("");
     setWeight("");
@@ -90,7 +97,9 @@ export default function Billing() {
     setErrors({});
   };
 
-  const handleSaveBill = async () => {
+  const handleSaveBill = async (options = {}) => {
+    const { autoPrint = false, sendWhatsapp = false } = options;
+
     // Validate before proceeding
     if (items.length === 0) {
       toast.error("Please add items to the bill");
@@ -110,6 +119,7 @@ export default function Billing() {
       phoneNumber: phoneNumber || null,
       customerName: customerName || null,
       timestamp: new Date().toISOString(),
+      sendWhatsapp, // Pass the flag to backend
     };
 
     // Use mutation to create bill
@@ -117,8 +127,6 @@ export default function Billing() {
       onSuccess: (response) => {
         // Store current bill number for display and printing
         if (response && response.bill) {
-          setCurrentBillNumber(response.bill.billNumber);
-
           // Prepare bill data for printing
           const printData = {
             items: response.bill.items || items,
@@ -131,31 +139,106 @@ export default function Billing() {
           // Store bill data for potential reprinting
           setLastBillData(printData);
 
-          // Auto print based on selected printer type
-          try {
-            if (isPOSPrinter) {
-              // Print with POS printer (browser dialog)
-              printWithBrowserDialog(printData);
-              toast.success("Bill saved! Printing...");
-            } else {
-              // Print with Thermal printer (RawBT)
-              const encodedData = generatePrinterData(printData);
-              printWithRawBT(encodedData);
-              toast.success("Bill saved! Sent to thermal printer");
+          // Handle auto-print if requested
+          if (autoPrint) {
+            try {
+              if (isPOSPrinter) {
+                // Print with POS printer (browser dialog)
+                printWithBrowserDialog(printData);
+                toast.success("Bill saved! Printing...");
+              } else {
+                // Print with Thermal printer (RawBT)
+                const encodedData = generatePrinterData(printData);
+                printWithRawBT(encodedData);
+                toast.success("Bill saved! Sent to thermal printer");
+              }
+            } catch (printError) {
+              console.error("Print error:", printError);
+              toast.warning(
+                "Bill saved but print failed. Check printer connection.",
+              );
             }
-
-            // Clear form after successful print
-            setTimeout(() => {
-              clearBill();
-            }, 500);
-          } catch (printError) {
-            console.error("Print error:", printError);
-            toast.warning(
-              "Bill saved but print failed. Check printer connection."
-            );
-            // Still clear the form even if print fails
-            clearBill();
           }
+
+          // Clear form after successful operation
+          setTimeout(() => {
+            clearBill();
+          }, 500);
+        }
+      },
+    });
+  };
+
+  // Handler for Print Bill button
+  const handlePrintBill = () => {
+    handleSaveBill({ autoPrint: true, sendWhatsapp: false });
+  };
+
+  // Handler for Send WhatsApp button
+  const handleSendWhatsApp = () => {
+    // Validate before proceeding
+    if (items.length === 0) {
+      toast.error("Please add items to the bill");
+      return;
+    }
+
+    // Validate phone number is required for WhatsApp
+    if (!phoneNumber) {
+      toast.error("Please enter customer phone number to send WhatsApp");
+      return;
+    }
+
+    if (!validatePhoneNumber()) {
+      toast.error("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    // Check if automatic WhatsApp is enabled in settings
+    const whatsappEnabled = localStorage.getItem("whatsappEnabled") === "true";
+
+    // Save bill first, then open WhatsApp
+    const billData = {
+      items,
+      total: finalTotal,
+      phoneNumber: phoneNumber || null,
+      customerName: customerName || null,
+      timestamp: new Date().toISOString(),
+      sendWhatsapp: whatsappEnabled, // Use settings preference for auto-send
+    };
+
+    createBillMutation(billData, {
+      onSuccess: (response) => {
+        if (response && response.bill) {
+          // Store bill data
+          const printData = {
+            items: response.bill.items || items,
+            total: response.bill.total || finalTotal,
+            billNumber: response.bill.billNumber,
+            customerName: response.bill.customerName,
+            phoneNumber: response.bill.phoneNumber,
+          };
+          setLastBillData(printData);
+
+          // Create beautiful WhatsApp message using helper function
+          const message = createWhatsAppBillMessage({
+            items: response.bill.items || items,
+            total: response.bill.total || finalTotal,
+            billNumber: response.bill.billNumber,
+            customerName: response.bill.customerName || customerName,
+          });
+
+          const encodedMessage = encodeURIComponent(message);
+          const whatsappUrl = `https://wa.me/91${phoneNumber}?text=${encodedMessage}`;
+
+          // Open WhatsApp in new tab/window
+          window.open(whatsappUrl, "_blank");
+
+          toast.success("Bill saved! Opening WhatsApp...");
+
+          // Clear form after successful operation
+          setTimeout(() => {
+            clearBill();
+          }, 500);
         }
       },
     });
@@ -234,7 +317,9 @@ export default function Billing() {
         <BillingActions
           isLoading={isLoading}
           itemsCount={items.length}
-          onSaveBill={handleSaveBill}
+          phoneNumber={phoneNumber}
+          onPrintBill={handlePrintBill}
+          onSendWhatsApp={handleSendWhatsApp}
           onClearBill={clearBill}
         />
       </Card>
