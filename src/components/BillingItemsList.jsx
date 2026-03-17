@@ -1,5 +1,6 @@
 import { CardContent } from "./Card";
 import CloseIcon from "../icons/CloseIcon";
+import { formatWeight } from "../utils/helper";
 
 export default function BillingItemsList({ items, onRemoveItem }) {
   if (items.length === 0) {
@@ -15,7 +16,7 @@ export default function BillingItemsList({ items, onRemoveItem }) {
         >
           <span>{item.name}</span>
           <span>
-            {item.price} x {item.weight} Kg
+            {item.price} x {formatWeight(item.weight)}
           </span>
           <span className="font-bold">₹{item.total.toFixed(2)}</span>
           <div

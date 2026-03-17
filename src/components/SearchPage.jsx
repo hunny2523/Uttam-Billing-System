@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getBills } from "../services/bill.service";
 import { toast } from "react-toastify";
 import { usePrinterSettings } from "../hooks/usePrinterSettings";
+import { formatWeight } from "../utils/helper";
 import {
   generatePrinterData,
   printWithRawBT,
@@ -175,7 +176,9 @@ export default function SearchPage() {
                           <td className="border px-2 py-1">{index + 1}</td>
                           <td className="border px-2 py-1">{item.name}</td>
                           <td className="border px-2 py-1">₹{item.price}</td>
-                          <td className="border px-2 py-1">{item.weight} Kg</td>
+                          <td className="border px-2 py-1">
+                            {formatWeight(item.weight)}
+                          </td>
                           <td className="border px-2 py-1">₹{item.total}</td>
                         </tr>
                       ))}

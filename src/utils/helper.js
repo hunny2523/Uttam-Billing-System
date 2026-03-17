@@ -1,6 +1,18 @@
 import { BUSINESS_CONFIG } from '../config/business';
 
 /**
+ * Formats weight to display as grams if less than 1 kg, otherwise as kg
+ * @param {number} weight - Weight in kilograms
+ * @returns {string} Formatted weight string (e.g., "50 gm" or "2 kg")
+ */
+export const formatWeight = (weight) => {
+    if (weight < 1) {
+        return `${(weight * 1000).toFixed(0)} gm`;
+    }
+    return `${weight} kg`;
+};
+
+/**
  * Creates a beautifully formatted WhatsApp message template for bills
  * @param {Object} params - The message parameters
  * @param {Array} params.items - Array of bill items
@@ -43,7 +55,7 @@ export const createSimpleWhatsAppBillMessage = ({
         const itemTotal = item.total || 0;
 
         lines.push(
-            `${index + 1}. ${itemName} - ${weight}kg × ₹${price} = ₹${itemTotal.toFixed(2)}`
+            `${index + 1}. ${itemName} - ${formatWeight(weight)} × ₹${price} = ₹${itemTotal.toFixed(2)}`
         );
     });
 
@@ -69,7 +81,7 @@ export const sendWhatsApp = (items) => {
 
     let message = "🧾 *Your Bill* \n";
     items.forEach((item, index) => {
-        message += `${index + 1}. ₹${item.price} x ${item.weight} Kg = ₹${item.total.toFixed(2)}\n`;
+        message += `${index + 1}. ₹${item.price} x ${formatWeight(item.weight)} = ₹${item.total.toFixed(2)}\n`;
     });
     message += `\n💰 *Total: ₹${finalTotal.toFixed(2)}*`;
 

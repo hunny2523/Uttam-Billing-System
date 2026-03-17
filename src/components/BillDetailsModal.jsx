@@ -1,5 +1,6 @@
 import { Button } from "./Button";
 import CloseIcon from "../icons/CloseIcon";
+import { formatWeight } from "../utils/helper";
 
 export default function BillDetailsModal({ bill, onClose }) {
   if (!bill) return null;
@@ -99,7 +100,7 @@ export default function BillDetailsModal({ bill, onClose }) {
                         ₹{parseFloat(item.price).toFixed(2)}
                       </td>
                       <td className="border border-gray-300 px-2 py-1 text-right text-gray-700">
-                        {parseFloat(item.weight).toFixed(2)} Kg
+                        {formatWeight(parseFloat(item.weight))}
                       </td>
                       <td className="border border-gray-300 px-2 py-1 text-right font-bold text-green-600">
                         ₹{parseFloat(item.total).toFixed(2)}

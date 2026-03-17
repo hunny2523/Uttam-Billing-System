@@ -1,4 +1,5 @@
 import { BUSINESS_CONFIG } from '../config/business';
+import { formatWeight } from './helper';
 
 /**
  * Utility function to generate printer commands for thermal printer
@@ -58,7 +59,7 @@ export const generatePrinterData = ({
                 ? displayName.slice(0, 11) + "."
                 : displayName.padEnd(12);
         let price = `₹${item.price}`.padStart(4);
-        let qty = `${item.weight} Kg`.padStart(7);
+        let qty = formatWeight(item.weight).padStart(7);
         let itemTotal = `₹${item.total.toFixed(2)}`.padStart(6) + "    ";
 
         data += `${indexNo} ${" "} ${name} ${price} x ${qty} = ${itemTotal}\n`;
@@ -157,7 +158,7 @@ export const generatePOSPrinterData = ({
         const displayName = item.nameGujarati || item.labelGujarati || item.name;
         const name = displayName.length > 12 ? displayName.slice(0, 12) : displayName.padEnd(12);
         const price = `₹${item.price}`.padStart(6);
-        const qty = `${item.weight}Kg`.padStart(6);
+        const qty = formatWeight(item.weight).padStart(6);
         const amount = `₹${item.total.toFixed(2)}`.padStart(8);
 
         commands.push(...textToBytes(`${name} ${price} ${qty} ${amount}\n`));
@@ -351,7 +352,7 @@ export const printWithBrowserDialog = (billData) => {
                     ${items.map(item => `
                         <tr>
                             <td>${item.nameGujarati || item.labelGujarati || item.name}</td>
-                            <td>${item.weight}Kg</td>
+                            <td>${formatWeight(item.weight)}</td>
                             <td>₹${item.price}</td>
                             <td>₹${item.total.toFixed(0)}</td>
                         </tr>
