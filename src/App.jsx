@@ -9,6 +9,7 @@ import ItemsManagement from "./components/ItemsManagement";
 import PasswordManagement from "./components/PasswordManagement";
 import Settings from "./components/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { BillingProvider } from "./contexts/BillingContext";
 import "./App.css";
 import {
   getCurrentUser,
@@ -63,78 +64,80 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="bg-gray-100 min-h-screen">
-          {/* Navigation Bar */}
-          <Navbar user={user} onLogout={handleLogout} />
+      <BillingProvider>
+        <Router>
+          <div className="bg-gray-100 min-h-screen">
+            {/* Navigation Bar */}
+            <Navbar user={user} onLogout={handleLogout} />
 
-          {/* Routes with Role-Based Access Control */}
-          <Routes>
-            {/* Billing Page - Staff & Admin can access */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute allowedRoles={["ADMIN", "STAFF"]}>
-                  <Billing />
-                </ProtectedRoute>
-              }
-            />
+            {/* Routes with Role-Based Access Control */}
+            <Routes>
+              {/* Billing Page - Staff & Admin can access */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN", "STAFF"]}>
+                    <Billing />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Search Page - Admin only */}
-            <Route
-              path="/search"
-              element={
-                <ProtectedRoute allowedRoles={["ADMIN"]}>
-                  <SearchPage />
-                </ProtectedRoute>
-              }
-            />
+              {/* Search Page - Admin only */}
+              <Route
+                path="/search"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                    <SearchPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Admin Dashboard - Admin only */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute allowedRoles={["ADMIN"]}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
+              {/* Admin Dashboard - Admin only */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Items Management - Admin only */}
-            <Route
-              path="/items"
-              element={
-                <ProtectedRoute allowedRoles={["ADMIN"]}>
-                  <ItemsManagement />
-                </ProtectedRoute>
-              }
-            />
+              {/* Items Management - Admin only */}
+              <Route
+                path="/items"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                    <ItemsManagement />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Password Management - Admin only */}
-            <Route
-              path="/password"
-              element={
-                <ProtectedRoute allowedRoles={["ADMIN"]}>
-                  <PasswordManagement />
-                </ProtectedRoute>
-              }
-            />
+              {/* Password Management - Admin only */}
+              <Route
+                path="/password"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN"]}>
+                    <PasswordManagement />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Settings - Admin & Staff can access */}
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute allowedRoles={["ADMIN", "STAFF"]}>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
+              {/* Settings - Admin & Staff can access */}
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute allowedRoles={["ADMIN", "STAFF"]}>
+                    <Settings />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Catch all - redirect to home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      </Router>
+              {/* Catch all - redirect to home */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </Router>
+      </BillingProvider>
     </QueryClientProvider>
   );
 }
