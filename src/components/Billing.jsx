@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Card } from "./Card";
 import { toast } from "react-toastify";
 import { useCreateBill } from "../hooks/useCreateBill";
 import { usePrinterSettings } from "../hooks/usePrinterSettings";
+import { useBillingContext } from "../contexts/BillingContext";
 import {
   generatePrinterData,
   printWithRawBT,
@@ -15,16 +16,31 @@ import BillingCustomerInfo from "./BillingCustomerInfo";
 import BillingActions from "./BillingActions";
 
 export default function Billing() {
-  // State management
-  const [items, setItems] = useState([]);
-  const [price, setPrice] = useState("");
-  const [weight, setWeight] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [customerName, setCustomerName] = useState("");
-  const [errors, setErrors] = useState({});
-  const [currentBillNumber, setCurrentBillNumber] = useState(null);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [lastBillData, setLastBillData] = useState(null); // Store last bill for reprinting
+  // Get billing state and functions from context
+  const {
+    items,
+    price,
+    setPrice,
+    weight,
+    setWeight,
+    phoneNumber,
+    setPhoneNumber,
+    customerName,
+    setCustomerName,
+    errors,
+    currentBillNumber,
+    setCurrentBillNumber,
+    selectedItem,
+    setSelectedItem,
+    lastBillData,
+    setLastBillData,
+    addItem,
+    removeItem,
+    getFinalTotal,
+    clearBill,
+    validateItemInputs,
+    validatePhoneNumber,
+  } = useBillingContext();
 
   // Refs
   const priceRef = useRef(null);
@@ -42,59 +58,15 @@ export default function Billing() {
     }
   }, [selectedItem]);
 
-  const validateItemInputs = () => {
-    const newErrors = {};
-    if (!price || parseFloat(price) <= 0)
-      newErrors.price = "Enter a valid price.";
-    if (!weight || parseFloat(weight) <= 0)
-      newErrors.weight = "Enter a valid weight.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const finalTotal = getFinalTotal();
 
-  const validatePhoneNumber = () => {
-    const newErrors = {};
-    if (!phoneNumber.match(/^\d{10}$/))
-      newErrors.phoneNumber = "Enter a valid 10-digit phone number.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const addItem = () => {
-    if (!validateItemInputs()) return;
-    if (!price || !weight) return;
-    const total = parseFloat(price) * parseFloat(weight);
-    setItems([
-      ...items,
-      {
-        name: selectedItem?.label ?? "",
-        price,
-        weight,
-        total,
-        labelGujarati: selectedItem?.labelGujarati,
-        labelEnglish: selectedItem?.labelEnglish,
-      },
-    ]);
-    setPrice("");
-    setWeight("");
-    setErrors({});
-    setSelectedItem(null);
-
+  // Handle add item with auto-focus
+  const handleAddItem = () => {
+    addItem();
     // Auto-focus back to price input
     if (priceRef.current) {
       priceRef.current.focus();
     }
-  };
-
-  const finalTotal = items.reduce((sum, item) => sum + item.total, 0);
-
-  const clearBill = () => {
-    setItems([]);
-    setPrice("");
-    setWeight("");
-    setPhoneNumber("");
-    setCustomerName("");
-    setErrors({});
   };
 
   const handleSaveBill = async () => {
@@ -204,10 +176,6 @@ export default function Billing() {
     }
   };
 
-  const removeItem = (indexToRemove) => {
-    setItems(items.filter((_, index) => index !== indexToRemove));
-  };
-
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 py-6 px-2">
       <Card className="w-full p-3 max-w-md bg-white shadow-lg rounded-2xl">
@@ -221,7 +189,7 @@ export default function Billing() {
           errors={errors}
           selectedItem={selectedItem}
           setSelectedItem={setSelectedItem}
-          onAddItem={addItem}
+          onAddItem={handleAddItem}
         />
 
         {/* Items List Section */}
