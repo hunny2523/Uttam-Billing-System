@@ -13,6 +13,7 @@ import {
   printWithRawBT,
   printWithBrowserDialog,
 } from "../utils/printer";
+import { createWhatsAppBillMessage } from "../utils/helper";
 
 export default function AdminDashboard() {
   const [startDate, setStartDate] = useState("");
@@ -82,7 +83,7 @@ export default function AdminDashboard() {
     // Format as YYYY-MM-DD using local date (no timezone conversion)
     const start = `${year}-${String(month + 1).padStart(2, "0")}-01`;
     const end = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-      lastDay.getDate()
+      lastDay.getDate(),
     ).padStart(2, "0")}`;
 
     setStartDate(start);
@@ -114,6 +115,34 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Print error:", error);
       toast.error("Failed to print");
+    }
+  };
+
+  // Send bill via WhatsApp
+  const handleSendWhatsApp = (bill) => {
+    try {
+      // Validate phone number
+      if (!bill.phoneNumber) {
+        toast.error("No phone number found for this bill");
+        return;
+      }
+
+      // Create WhatsApp message
+      const message = createWhatsAppBillMessage({
+        items: bill.items || [],
+        total: bill.total,
+        billNumber: bill.billNumber,
+        customerName: bill.customerName,
+      });
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/91${bill.phoneNumber}?text=${encodedMessage}`;
+
+      // Open WhatsApp in new tab
+      window.open(whatsappUrl, "_blank");
+    } catch (error) {
+      console.error("WhatsApp error:", error);
+      toast.error("Failed to open WhatsApp");
     }
   };
 
@@ -300,7 +329,7 @@ export default function AdminDashboard() {
                     Date & Time
                   </th>
                   <th className="px-4 py-3 text-center font-bold text-gray-700">
-                    Print
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -336,13 +365,24 @@ export default function AdminDashboard() {
                       })}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => handlePrint(bill)}
-                        className="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
-                        title="Print Bill"
-                      >
-                        🖨️
-                      </button>
+                      <div className="flex gap-2 justify-center">
+                        <button
+                          onClick={() => handlePrint(bill)}
+                          className="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700 transition"
+                          title="Print Bill"
+                        >
+                          🖨️
+                        </button>
+                        {bill.phoneNumber && (
+                          <button
+                            onClick={() => handleSendWhatsApp(bill)}
+                            className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition"
+                            title="Send via WhatsApp"
+                          >
+                            💬
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
