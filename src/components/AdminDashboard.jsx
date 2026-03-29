@@ -14,6 +14,7 @@ import {
   printWithBrowserDialog,
 } from "../utils/printer";
 import { createWhatsAppBillMessage } from "../utils/helper";
+import WhatsAppIcon from "../icons/WhatsAppIcon";
 
 export default function AdminDashboard() {
   const [startDate, setStartDate] = useState("");
@@ -376,10 +377,10 @@ export default function AdminDashboard() {
                         {bill.phoneNumber && (
                           <button
                             onClick={() => handleSendWhatsApp(bill)}
-                            className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition"
+                            className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded hover:bg-emerald-700 transition flex items-center justify-center"
                             title="Send via WhatsApp"
                           >
-                            💬
+                            <WhatsAppIcon className="size-4" />
                           </button>
                         )}
                       </div>
